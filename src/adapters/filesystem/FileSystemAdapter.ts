@@ -23,11 +23,11 @@ export class FileSystemAdapter {
    */
   public async write(artifacts: Artifact[], options: PipelineStep.FsWrite): Promise<void> {
     // Ensure destination directory exists
-    await mkdir(options.directoryPath, { recursive: true });
+    await mkdir(options.path, { recursive: true });
 
     for (const artifact of artifacts) {
       const filename = basename(artifact.path);
-      const destPath = join(options.directoryPath, filename);
+      const destPath = join(options.path, filename);
 
       if (artifact.type === "file") {
         await copyFile(artifact.path, destPath);

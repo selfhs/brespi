@@ -20,7 +20,7 @@ export class S3Adapter {
       endpoint: "http://minio:9000",
     });
 
-    const manifest = await this.handleManifestExclusively(client, options.folder, async (s3Manifest, s3Save) => {
+    const manifest = await this.handleManifestExclusively(client, options.namespace, async (s3Manifest, s3Save) => {
       s3Manifest.uploads.unshift(
         ...artifacts.map((artifact) => ({
           name: artifact.name,
@@ -40,8 +40,8 @@ export class S3Adapter {
         timestamp: artifact.timestamp,
         trail,
       };
-      await client.write(join(options.folder, `${s3Path}.brespi.json`), JSON.stringify(meta));
-      await client.write(join(options.folder, s3Path), Bun.file(artifact.path));
+      await client.write(join(options.namespace, `${s3Path}.brespi.json`), JSON.stringify(meta));
+      await client.write(join(options.namespace, s3Path), Bun.file(artifact.path));
     }
   }
 
@@ -53,19 +53,20 @@ export class S3Adapter {
       endpoint: "http://minio:9000",
     });
 
-    const manifest: S3Manifest = await this.handleManifestExclusively(client, options.folder, (manifest) => manifest);
+    const manifest: S3Manifest = await this.handleManifestExclusively(client, options.namespace, (manifest) => manifest);
+    const selection = options.selection;
     const target =
-      options.selection === "latest"
-        ? manifest.uploads.find((u) => u.name === options.name)
-        : manifest.uploads.find((u) => u.name === options.name && u.path === options.version);
+      selection.strategy === "latest"
+        ? manifest.uploads.find((u) => u.name === options.artifact)
+        : manifest.uploads.find((u) => u.name === options.artifact && u.path === selection.version);
     if (!target) {
       throw new Error(`Upload entry not found for options: ${JSON.stringify(options)}`);
     }
-    const s3FileMeta = client.file(join(options.folder, `${target.path}.brespi.json`));
+    const s3FileMeta = client.file(join(options.namespace, `${target.path}.brespi.json`));
     if (!(await s3FileMeta.exists())) {
       throw new Error(`Upload file meta not found for options: ${JSON.stringify(options)}`);
     }
-    const s3File = client.file(join(options.folder, target.path));
+    const s3File = client.file(join(options.namespace, target.path));
     if (!(await s3File.exists())) {
       throw new Error(`Upload file not found for options: ${JSON.stringify(options)}`);
     }
@@ -74,10 +75,10 @@ export class S3Adapter {
     const path = NamingHelper.generatePath({ name: meta.name, timestamp: meta.timestamp });
     await Bun.write(path, s3File);
 
-    const stats = await stat(path);
+    const { size } = await stat(path);
     return {
-      path: path,
-      size: stats.size,
+      path,
+      size,
       type: "file",
       name: meta.name,
       timestamp: meta.timestamp,

@@ -86,7 +86,7 @@ export class EncryptionAdapter {
   }
 
   private translateAlgorithm(algorithm: string): string {
-    if (algorithm !== "aes256") {
+    if (algorithm !== "aes256cbc") {
       throw new Error(`Unsupported algorithm: ${algorithm}`);
     }
     return "aes-256-cbc";

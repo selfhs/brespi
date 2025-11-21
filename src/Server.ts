@@ -59,14 +59,14 @@ export class Server {
                 },
                 {
                   type: PipelineStep.Type.encryption,
-                  algorithm: "aes256",
-                  keyReference: "CUSTOM_KEY",
+                  algorithm: "aes256cbc",
+                  keyReference: "SYMMETRIC_KEY",
                 },
                 {
                   type: PipelineStep.Type.s3_upload,
                   accessKeyReference: "ACCESS_KEY",
                   secretKeyReference: "SECRET_KEY",
-                  folder: "some-random-parent-folder",
+                  namespace: "some-random-parent-folder",
                 },
               ],
             };
@@ -81,16 +81,18 @@ export class Server {
               steps: [
                 {
                   type: PipelineStep.Type.s3_download,
-                  folder: "some-random-parent-folder",
-                  name: "bakingworld",
-                  selection: "latest",
+                  namespace: "some-random-parent-folder",
+                  artifact: "gamingworld",
                   accessKeyReference: "ACCESS_KEY",
                   secretKeyReference: "SECRET_KEY",
+                  selection: {
+                    strategy: "latest",
+                  },
                 },
                 {
                   type: PipelineStep.Type.decryption,
-                  algorithm: "aes256",
-                  keyReference: "CUSTOM_KEY",
+                  algorithm: "aes256cbc",
+                  keyReference: "SYMMETRIC_KEY",
                 },
                 {
                   type: PipelineStep.Type.decompression,
@@ -121,15 +123,6 @@ export class Server {
         });
       }
       return Response.json(error.json(), { status: 400 });
-    }
-    if (e.name === ZodError.name) {
-      const error = e as ZodError;
-      return Response.json(
-        WebError.invalid_request_body({
-          problemFields: error.issues.map((zodIssue) => zodIssue.path.join(",")),
-        }).json(),
-        { status: 400 },
-      );
     }
     if (e.message?.includes("invalid input syntax for type")) {
       return Response.json(WebError.invalid_request_body().json(), { status: 400 });

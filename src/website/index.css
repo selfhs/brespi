@@ -2,9 +2,8 @@
 
 @layer base {
     :root {
-        @apply text-[rgba(255,255,255,0.87)] bg-[#242424] font-sans;
+        @apply text-black bg-white font-sans;
     }
-
     body {
         @apply grid place-items-center min-w-[320px] min-h-screen relative m-0;
     }
@@ -16,7 +15,6 @@ body::before {
     inset: 0;
     z-index: -1;
     opacity: 0.05;
-    background: url("./logo.svg");
     background-size: 256px;
     transform: rotate(-12deg) scale(1.35);
     animation: slide 30s linear infinite;
@@ -47,4 +45,20 @@ body::before {
     ::after {
         animation: none !important;
     }
+}
+
+.joint-paper {
+    cursor: grab;
+}
+
+.joint-paper.joint-theme-default .joint-element {
+    cursor: pointer !important;
+}
+
+.joint-paper.joint-theme-default .joint-element * {
+    cursor: pointer !important;
+}
+
+.joint-paper.joint-theme-default .joint-link {
+    cursor: default;
 }

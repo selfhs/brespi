@@ -6,11 +6,12 @@
  */
 
 import { createRoot } from "react-dom/client";
-import { App } from "./App";
+import { Website } from "./Website";
+import "./index.css";
 
 function start() {
   const root = createRoot(document.getElementById("root")!);
-  root.render(<App />);
+  root.render(<Website />);
 }
 
 if (document.readyState === "loading") {
