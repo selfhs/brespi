@@ -26,9 +26,9 @@ export namespace Skeleton {
   export function Header() {
     const { pathname } = useLocation();
     const navigationLinks: NavigationLink[] = [
-      { title: "Pipelines", link: "", rounding: "left" },
-      { title: "Schedules", link: "schedules", rounding: undefined },
-      { title: "Configuration", link: "configuration", rounding: "right" },
+      { title: "Pipelines", link: "/pipelines", rounding: "left" },
+      { title: "Schedules", link: "/schedules", rounding: undefined },
+      { title: "Configuration", link: "/configuration", rounding: "right" },
     ];
 
     return (
@@ -41,7 +41,7 @@ export namespace Skeleton {
               className={clsx("p-6 hover:bg-c-dim/30", {
                 "rounded-l-2xl": rounding === "left",
                 "rounded-r-2xl": rounding === "right",
-                "bg-c-dim/20": pathname === link || pathname === `${link}/`,
+                "bg-c-dim/20": pathname.startsWith(link),
                 "ml-auto": index + 1 === length,
               })}
             >

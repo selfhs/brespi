@@ -7,11 +7,16 @@ import { $Configuration } from "./pages/$Configuration";
 import { $Demo } from "./pages/$Demo";
 import { $PipelineOverview } from "./pages/$PipelineOverview";
 import { $ScheduleOverview } from "./pages/$ScheduleOverview";
+import { $Pipeline } from "./pages/$Pipeline";
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: "pipelines",
     Component: $PipelineOverview,
+  },
+  {
+    path: "pipelines/:id",
+    Component: $Pipeline,
   },
   {
     path: "demo",
@@ -27,7 +32,7 @@ const router = createBrowserRouter([
   },
   {
     path: "*",
-    loader: () => replace("/"),
+    loader: () => replace("pipelines"),
   },
 ]);
 

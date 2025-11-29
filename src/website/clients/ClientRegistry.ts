@@ -4,6 +4,7 @@ import { createContext } from "react";
 import { Class } from "@/types/Class";
 import { ProblemDetails } from "@/models/ProblemDetails";
 import { QueryClient } from "@tanstack/react-query";
+import { PipelineClient } from "./PipelineClient";
 
 export class ClientRegistry {
   /**
@@ -27,6 +28,7 @@ export class ClientRegistry {
         return Promise.reject(response?.body);
       },
     }));
+    this.registry[PipelineClient.name] = new PipelineClient(yesttp);
     this.registry[QueryClient.name] = new QueryClient({
       defaultOptions: {
         queries: {

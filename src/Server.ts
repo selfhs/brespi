@@ -3,10 +3,11 @@ import { ServiceError } from "@/errors/ServiceError";
 import { WebError } from "@/errors/WebError";
 import index from "@/website/index.html";
 import { ErrorLike, serve } from "bun";
-import { ZodError } from "zod/v4";
-import { Pipeline } from "./models/Pipeline";
-import { PipelineStep } from "./models/PipelineStep";
+import { PipelineData } from "./models/Pipeline+Data";
 import { PipelineService } from "./services/PipelineService";
+import { PipelineView } from "./views/PipelineView";
+import { PipelineViewData } from "./views/PipelineView+Data";
+import { PipelineError } from "./errors/PipelineError";
 
 export class Server {
   public constructor(private readonly pipelineService: PipelineService) {}
@@ -37,70 +38,40 @@ export class Server {
         },
 
         /**
+         * Pipelines
+         */
+        "/api/pipelines": {
+          GET: async () => {
+            const pipelines = [PipelineViewData.POSTGRES_BACKUP, PipelineViewData.WP_BACKUP, PipelineViewData.RESTORE];
+            return Response.json(pipelines satisfies PipelineView[]);
+          },
+        },
+        "/api/pipelines/:id": {
+          GET: async ({ params }) => {
+            const pipeline: PipelineView | undefined = [
+              PipelineViewData.POSTGRES_BACKUP,
+              PipelineViewData.WP_BACKUP,
+              PipelineViewData.RESTORE,
+            ].find((p) => p.id === params.id);
+            if (!pipeline) {
+              return Response.json(PipelineError.not_found().json(), { status: 400 });
+            }
+            return Response.json(pipeline satisfies PipelineView);
+          },
+        },
+
+        /**
          * Temporary
          */
         "/api/backup": {
           POST: async () => {
-            const pipeline: Pipeline = {
-              name: "My Pipeline",
-              steps: [
-                {
-                  type: PipelineStep.Type.postgres_backup,
-                  databases: {
-                    selection: "all",
-                  },
-                },
-                {
-                  type: PipelineStep.Type.compression,
-                  algorithm: "targzip",
-                  targzip: {
-                    level: 9,
-                  },
-                },
-                {
-                  type: PipelineStep.Type.encryption,
-                  algorithm: "aes256cbc",
-                  keyReference: "SYMMETRIC_KEY",
-                },
-                {
-                  type: PipelineStep.Type.s3_upload,
-                  accessKeyReference: "ACCESS_KEY",
-                  secretKeyReference: "SECRET_KEY",
-                  namespace: "some-random-parent-folder",
-                },
-              ],
-            };
-            const result = await this.pipelineService.execute(pipeline);
+            const result = await this.pipelineService.execute(PipelineData.POSTGRES_BACKUP);
             return Response.json(result);
           },
         },
         "/api/restore": {
           POST: async () => {
-            const pipeline: Pipeline = {
-              name: "My Pipeline 2",
-              steps: [
-                {
-                  type: PipelineStep.Type.s3_download,
-                  namespace: "some-random-parent-folder",
-                  artifact: "gamingworld",
-                  accessKeyReference: "ACCESS_KEY",
-                  secretKeyReference: "SECRET_KEY",
-                  selection: {
-                    strategy: "latest",
-                  },
-                },
-                {
-                  type: PipelineStep.Type.decryption,
-                  algorithm: "aes256cbc",
-                  keyReference: "SYMMETRIC_KEY",
-                },
-                {
-                  type: PipelineStep.Type.decompression,
-                  algorithm: "targzip",
-                },
-              ],
-            };
-            const result = await this.pipelineService.execute(pipeline);
+            const result = await this.pipelineService.execute(PipelineData.RESTORE);
             return Response.json(result);
           },
         },
