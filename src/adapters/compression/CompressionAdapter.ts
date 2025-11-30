@@ -1,7 +1,7 @@
 import { stat, mkdir } from "fs/promises";
 import { spawn } from "bun";
 import { Artifact } from "@/models/Artifact";
-import { PipelineStep } from "@/models/PipelineStep";
+import { Step } from "@/models/Step";
 import { NamingHelper } from "@/helpers/NamingHelper";
 import { basename, dirname } from "path";
 import { Config } from "@/Config";
@@ -11,7 +11,7 @@ import { rename } from "fs/promises";
 import { cp } from "fs/promises";
 
 export class CompressionAdapter {
-  public async compress(artifact: Artifact, options: PipelineStep.Compression): Promise<Artifact> {
+  public async compress(artifact: Artifact, options: Step.Compression): Promise<Artifact> {
     const inputPath = artifact.path;
     const outputPath = NamingHelper.generatePath(artifact);
 
@@ -44,7 +44,7 @@ export class CompressionAdapter {
     };
   }
 
-  public async decompress(artifact: Artifact, options: PipelineStep.Decompression): Promise<Artifact> {
+  public async decompress(artifact: Artifact, options: Step.Decompression): Promise<Artifact> {
     if (artifact.type !== "file") {
       throw new Error(`Unsupported artifact type: ${artifact.type}`);
     }

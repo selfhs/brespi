@@ -1,7 +1,7 @@
 import { Config } from "@/Config";
 import { NamingHelper } from "@/helpers/NamingHelper";
 import { Artifact } from "@/models/Artifact";
-import { PipelineStep } from "@/models/PipelineStep";
+import { Step } from "@/models/Step";
 import { Temporal } from "@js-temporal/polyfill";
 import { spawn } from "bun";
 import { rm } from "fs/promises";
@@ -19,7 +19,7 @@ export class PostgresAdapter {
     };
   }
 
-  public async backup(options: PipelineStep.PostgresBackup): Promise<Artifact[]> {
+  public async backup(options: Step.PostgresBackup): Promise<Artifact[]> {
     // Get the path to the backup script
     const scriptPath = join(import.meta.dir, "pg_backup.sh");
 

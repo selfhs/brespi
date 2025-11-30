@@ -1,24 +1,16 @@
-import { Temporal } from "@js-temporal/polyfill";
+import { ProblemDetails } from "@/models/ProblemDetails";
+import { PipelineView } from "@/views/PipelineView";
+import { useQuery } from "@tanstack/react-query";
+import clsx from "clsx";
+import { Link } from "react-router";
+import { PipelineClient } from "../clients/PipelineClient";
+import { QueryKey } from "../clients/QueryKey";
+import { ErrorDump } from "../comps/ErrorDump";
 import { Paper } from "../comps/Paper";
 import { Skeleton } from "../comps/Skeleton";
-import { Link } from "react-router";
-import { SquareIcon } from "../comps/SquareIcon";
-import clsx from "clsx";
-import { useRegistry } from "../hooks/useRegistry";
-import { PipelineClient } from "../clients/PipelineClient";
-import { useQuery } from "@tanstack/react-query";
-import { QueryKey } from "../clients/QueryKey";
 import { Spinner } from "../comps/Spinner";
-import { Icon } from "../comps/Icon";
-import { ErrorDump } from "../comps/ErrorDump";
-import { ProblemDetails } from "@/models/ProblemDetails";
-
-type PipelineVisualization = {
-  link: string;
-  title: string;
-  subtitle?: string;
-  squareIcon: SquareIcon.Props["variant"];
-};
+import { SquareIcon } from "../comps/SquareIcon";
+import { useRegistry } from "../hooks/useRegistry";
 
 export function $PipelineOverview() {
   const pipelineClient = useRegistry.instance(PipelineClient);
@@ -27,15 +19,7 @@ export function $PipelineOverview() {
     queryKey: [QueryKey.pipelines],
     queryFn: () =>
       pipelineClient.query().then<PipelineVisualization[]>((pipelineViews) => [
-        ...pipelineViews.map<PipelineVisualization>((pipeline) => ({
-          link: `/pipelines/${pipeline.id}`,
-          title: pipeline.name,
-          subtitle:
-            pipeline.executions.length > 0
-              ? `${pipeline.executions[0].outcome === "success" ? "Successfully executed" : "Failed to execute"} on ${pipeline.executions[0].completedAt.toLocaleString()}`
-              : "Last execution: N/A",
-          squareIcon: pipeline.executions.length > 0 ? pipeline.executions[0].outcome : ("no_data" as const),
-        })),
+        ...pipelineViews.map(PipelineVisualization.convert),
         {
           link: "/pipelines/new",
           title: "New Pipeline ...",
@@ -76,4 +60,24 @@ export function $PipelineOverview() {
       </Paper>
     </Skeleton>
   );
+}
+
+type PipelineVisualization = {
+  link: string;
+  title: string;
+  subtitle?: string;
+  squareIcon: SquareIcon.Props["variant"];
+};
+namespace PipelineVisualization {
+  export function convert(p: PipelineView): PipelineVisualization {
+    const lastExecution = p.executions.length > 0 ? p.executions[0] : undefined;
+    return {
+      link: `/pipelines/${p.id}`,
+      title: p.name,
+      subtitle: lastExecution
+        ? `${lastExecution.outcome === "success" ? "Successfully executed" : "Failed to execute"} on ${lastExecution.completedAt.toLocaleString()}`
+        : "Last execution: N/A",
+      squareIcon: lastExecution?.outcome || "no_data",
+    };
+  }
 }

@@ -1,5 +1,5 @@
+import { Execution } from "@/models/Execution";
 import { Temporal } from "@js-temporal/polyfill";
-import { Execution } from "./Execution";
 
 export namespace ExecutionData {
   const time1 = Temporal.Now.plainDateTimeISO().subtract({ days: 1 });

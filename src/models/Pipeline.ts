@@ -1,11 +1,11 @@
 import { Parser } from "@/parsing/Parser";
 import z from "zod/v4";
-import { PipelineStep } from "./PipelineStep";
+import { Step } from "./Step";
 
 export type Pipeline = {
   id: string;
   name: string;
-  steps: PipelineStep[];
+  steps: Step[];
 };
 
 export namespace Pipeline {
@@ -13,7 +13,7 @@ export namespace Pipeline {
     z.object({
       id: z.string(),
       name: z.string(),
-      steps: z.array(PipelineStep.parse.SCHEMA),
+      steps: z.array(Step.parse.SCHEMA),
     }),
   );
 }

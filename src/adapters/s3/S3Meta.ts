@@ -1,4 +1,4 @@
-import { PipelineStep } from "@/models/PipelineStep";
+import { Step } from "@/models/Step";
 import z from "zod/v4";
 
 export type S3Meta = {
@@ -6,7 +6,7 @@ export type S3Meta = {
   object: "meta";
   name: string;
   timestamp: number;
-  trail: PipelineStep[] | unknown[];
+  trail: Step[] | unknown[];
 };
 
 export namespace S3Meta {

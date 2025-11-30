@@ -1,6 +1,6 @@
-import { PipelineData } from "@/models/Pipeline+Data";
-import { PipelineView } from "./PipelineView";
-import { ExecutionData } from "@/models/Execution+Data";
+import { PipelineView } from "../views/PipelineView";
+import { ExecutionData } from "./ExecutionData";
+import { PipelineData } from "./PipelineData";
 
 export namespace PipelineViewData {
   export const POSTGRES_BACKUP: PipelineView = {

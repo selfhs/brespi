@@ -1,3 +1,3 @@
-import { ServiceError } from "@/errors/ServiceError";
+import { Exception } from "@/errors/Exception";
 
-export const PipelineError = ServiceError.createGroup("PIPELINE", ["not_found"] as const);
+export const PipelineError = Exception.createGroup("PIPELINE", ["not_found"] as const);

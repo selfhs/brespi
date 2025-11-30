@@ -4,12 +4,12 @@ import { createReadStream, createWriteStream } from "fs";
 import { stat } from "fs/promises";
 import { createCipheriv, createDecipheriv, randomBytes, createHash } from "crypto";
 import { pipeline } from "stream/promises";
-import { PipelineStep } from "@/models/PipelineStep";
+import { Step } from "@/models/Step";
 
 export class EncryptionAdapter {
   private readonly key = "supersecretkey"; // TODO
 
-  public async encrypt(artifact: Artifact, options: PipelineStep.Encryption): Promise<Artifact> {
+  public async encrypt(artifact: Artifact, options: Step.Encryption): Promise<Artifact> {
     if (artifact.type !== "file") {
       throw new Error("Unsupported artifact type");
     }
@@ -43,7 +43,7 @@ export class EncryptionAdapter {
     };
   }
 
-  public async decrypt(artifact: Artifact, options: PipelineStep.Decryption): Promise<Artifact> {
+  public async decrypt(artifact: Artifact, options: Step.Decryption): Promise<Artifact> {
     if (artifact.type !== "file") {
       throw new Error("Unsupported artifact type");
     }

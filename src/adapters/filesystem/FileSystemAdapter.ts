@@ -1,6 +1,6 @@
 import { NamingHelper } from "@/helpers/NamingHelper";
 import { Artifact } from "@/models/Artifact";
-import { PipelineStep } from "@/models/PipelineStep";
+import { Step } from "@/models/Step";
 import { Temporal } from "@js-temporal/polyfill";
 import { stat, readdir, copyFile, mkdir } from "fs/promises";
 import { join, basename } from "path";
@@ -9,7 +9,7 @@ export class FileSystemAdapter {
   /**
    * Read file(s) from filesystem and convert to artifacts
    */
-  public async read(options: PipelineStep.FsRead): Promise<Artifact[]> {
+  public async read(options: Step.FsRead): Promise<Artifact[]> {
     const item = await stat(options.path);
     if (item.isDirectory() && options.itemizeDirectoryContents) {
       return await this.readDirectoryRecursively(options.path);
@@ -21,7 +21,7 @@ export class FileSystemAdapter {
   /**
    * Write artifacts from pipeline to a directory on filesystem
    */
-  public async write(artifacts: Artifact[], options: PipelineStep.FsWrite): Promise<void> {
+  public async write(artifacts: Artifact[], options: Step.FsWrite): Promise<void> {
     // Ensure destination directory exists
     await mkdir(options.path, { recursive: true });
 

@@ -5,6 +5,6 @@ export type ProblemDetails = {
 
 export namespace ProblemDetails {
   export function isInstance(value: any): value is ProblemDetails {
-    return value?.problem !== undefined;
+    return typeof value?.problem === "string";
   }
 }

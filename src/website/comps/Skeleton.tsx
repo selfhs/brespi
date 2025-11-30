@@ -28,6 +28,7 @@ export namespace Skeleton {
     const navigationLinks: NavigationLink[] = [
       { title: "Pipelines", link: "/pipelines", rounding: "left" },
       { title: "Schedules", link: "/schedules", rounding: undefined },
+      { title: "Settings", link: "/settings", rounding: undefined },
       { title: "Configuration", link: "/configuration", rounding: "right" },
     ];
 

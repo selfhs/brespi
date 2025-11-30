@@ -1,17 +1,17 @@
 import z from "zod/v4";
 
-export type PipelineStep =
-  | PipelineStep.FsRead
-  | PipelineStep.FsWrite
-  | PipelineStep.PostgresBackup
-  | PipelineStep.Compression
-  | PipelineStep.Decompression
-  | PipelineStep.Encryption
-  | PipelineStep.Decryption
-  | PipelineStep.S3Upload
-  | PipelineStep.S3Download;
+export type Step =
+  | Step.FsRead
+  | Step.FsWrite
+  | Step.PostgresBackup
+  | Step.Compression
+  | Step.Decompression
+  | Step.Encryption
+  | Step.Decryption
+  | Step.S3Upload
+  | Step.S3Download;
 
-export namespace PipelineStep {
+export namespace Step {
   export enum Type {
     fs_read = "fs_read",
     fs_write = "fs_write",
@@ -100,22 +100,22 @@ export namespace PipelineStep {
       | { strategy: "version"; version: string };
   };
 
-  const categories: Record<PipelineStep.Type, PipelineStep.Category> = {
-    [PipelineStep.Type.fs_read]: PipelineStep.Category.producer,
-    [PipelineStep.Type.fs_write]: PipelineStep.Category.consumer,
-    [PipelineStep.Type.postgres_backup]: PipelineStep.Category.producer,
-    [PipelineStep.Type.compression]: PipelineStep.Category.transformer,
-    [PipelineStep.Type.decompression]: PipelineStep.Category.transformer,
-    [PipelineStep.Type.encryption]: PipelineStep.Category.transformer,
-    [PipelineStep.Type.decryption]: PipelineStep.Category.transformer,
-    [PipelineStep.Type.s3_upload]: PipelineStep.Category.consumer,
-    [PipelineStep.Type.s3_download]: PipelineStep.Category.producer,
+  const categories: Record<Step.Type, Step.Category> = {
+    [Step.Type.fs_read]: Step.Category.producer,
+    [Step.Type.fs_write]: Step.Category.consumer,
+    [Step.Type.postgres_backup]: Step.Category.producer,
+    [Step.Type.compression]: Step.Category.transformer,
+    [Step.Type.decompression]: Step.Category.transformer,
+    [Step.Type.encryption]: Step.Category.transformer,
+    [Step.Type.decryption]: Step.Category.transformer,
+    [Step.Type.s3_upload]: Step.Category.consumer,
+    [Step.Type.s3_download]: Step.Category.producer,
   };
-  export function getCategory(step: PipelineStep): PipelineStep.Category {
+  export function getCategory(step: Step): Step.Category {
     return categories[step.type];
   }
 
-  type SubSchema<T extends PipelineStep> = Record<keyof T, z.ZodType>;
+  type SubSchema<T extends Step> = Record<keyof T, z.ZodType>;
   const schema = z.discriminatedUnion("type", [
     z.object({
       id: z.string(),
@@ -123,14 +123,14 @@ export namespace PipelineStep {
       type: z.literal(Type.fs_read),
       path: z.string(),
       itemizeDirectoryContents: z.boolean(),
-    } satisfies SubSchema<PipelineStep.FsRead>),
+    } satisfies SubSchema<Step.FsRead>),
 
     z.object({
       id: z.string(),
       previousStepId: z.string().optional(),
       type: z.literal(Type.fs_write),
       path: z.string(),
-    } satisfies SubSchema<PipelineStep.FsWrite>),
+    } satisfies SubSchema<Step.FsWrite>),
 
     z.object({
       id: z.string(),
@@ -141,7 +141,7 @@ export namespace PipelineStep {
         z.object({ selection: z.literal("include"), include: z.array(z.string()) }),
         z.object({ selection: z.literal("exclude"), exclude: z.array(z.string()) }),
       ]),
-    } satisfies SubSchema<PipelineStep.PostgresBackup>),
+    } satisfies SubSchema<Step.PostgresBackup>),
 
     z.object({
       id: z.string(),
@@ -151,14 +151,14 @@ export namespace PipelineStep {
       targzip: z.object({
         level: z.number().min(1).max(9),
       }),
-    } satisfies SubSchema<PipelineStep.Compression>),
+    } satisfies SubSchema<Step.Compression>),
 
     z.object({
       id: z.string(),
       previousStepId: z.string().optional(),
       type: z.literal(Type.decompression),
       algorithm: z.literal("targzip"),
-    } satisfies SubSchema<PipelineStep.Decompression>),
+    } satisfies SubSchema<Step.Decompression>),
 
     z.object({
       id: z.string(),
@@ -166,7 +166,7 @@ export namespace PipelineStep {
       type: z.literal(Type.encryption),
       algorithm: z.literal("aes256cbc"),
       keyReference: z.string(),
-    } satisfies SubSchema<PipelineStep.Encryption>),
+    } satisfies SubSchema<Step.Encryption>),
 
     z.object({
       id: z.string(),
@@ -174,7 +174,7 @@ export namespace PipelineStep {
       type: z.literal(Type.decryption),
       algorithm: z.literal("aes256cbc"),
       keyReference: z.string(),
-    } satisfies SubSchema<PipelineStep.Decryption>),
+    } satisfies SubSchema<Step.Decryption>),
 
     z.object({
       id: z.string(),
@@ -183,7 +183,7 @@ export namespace PipelineStep {
       accessKeyReference: z.string(),
       secretKeyReference: z.string(),
       namespace: z.string(),
-    } satisfies SubSchema<PipelineStep.S3Upload>),
+    } satisfies SubSchema<Step.S3Upload>),
 
     z.object({
       id: z.string(),
@@ -194,12 +194,12 @@ export namespace PipelineStep {
       namespace: z.string(),
       artifact: z.string(),
       selection: z.union([z.object({ strategy: z.literal("latest") }), z.object({ strategy: z.literal("version"), version: z.string() })]),
-    } satisfies SubSchema<PipelineStep.S3Download>),
+    } satisfies SubSchema<Step.S3Download>),
   ]);
-  export function parse(unknown: unknown): PipelineStep {
-    // Below ensures that PipelineStep is assignable to Zod
-    const unionTypeExhaustionCheck: z.Infer<typeof schema> = undefined as unknown as PipelineStep;
-    // Below ensures that Zod is assignable to PipelineStep (see method signature)
+  export function parse(unknown: unknown): Step {
+    // Below ensures that Step is assignable to Zod
+    const unionTypeExhaustionCheck: z.Infer<typeof schema> = undefined as unknown as Step;
+    // Below ensures that Zod is assignable to Step (see method signature)
     return schema.parse(unknown);
   }
   parse.SCHEMA = schema;

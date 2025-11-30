@@ -19,10 +19,6 @@ const router = createBrowserRouter([
     Component: $Pipeline,
   },
   {
-    path: "demo",
-    Component: $Demo,
-  },
-  {
     path: "schedules",
     Component: $ScheduleOverview,
   },
@@ -31,8 +27,12 @@ const router = createBrowserRouter([
     Component: $Configuration,
   },
   {
+    path: "demo", // TODO: remove
+    Component: $Demo,
+  },
+  {
     path: "*",
-    loader: () => replace("pipelines"),
+    loader: () => replace("/pipelines"),
   },
 ]);
 
