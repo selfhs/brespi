@@ -8,6 +8,7 @@ export namespace ExecutionData {
   const duration = Temporal.Duration.from({ seconds: Math.round(200 + Math.random() * 400) });
 
   export const SUCCESS_1: Execution = {
+    id: Bun.randomUUIDv7(),
     outcome: Execution.Outcome.success,
     duration,
     startedAt: time1,
@@ -15,6 +16,7 @@ export namespace ExecutionData {
   };
 
   export const SUCCESS_2: Execution = {
+    id: Bun.randomUUIDv7(),
     outcome: Execution.Outcome.success,
     duration,
     startedAt: time2,
@@ -22,6 +24,7 @@ export namespace ExecutionData {
   };
 
   export const ERROR: Execution = {
+    id: Bun.randomUUIDv7(),
     outcome: Execution.Outcome.error,
     duration,
     startedAt: time3,

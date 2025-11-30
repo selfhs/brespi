@@ -15,6 +15,7 @@ import { Canvas } from "../canvas/Canvas";
 import { Block } from "../canvas/Block";
 import { Step } from "@/models/Step";
 import { useRef, useState } from "react";
+import { SquareIcon } from "../comps/SquareIcon";
 
 export function pipelines_$id() {
   const { id } = useParams();
@@ -64,8 +65,27 @@ export function pipelines_$id() {
               />
             </div>
             {/* DETAILS */}
-            <div className="col-span-6 p-6">Execution History</div>
-            <div className="col-span-6 p-6">Execution Details</div>
+            <div className="col-span-6 p-6">
+              <h2 className="mb-6 text-xl font-extralight">Execution History</h2>
+              {query.data.executions.map((execution) => (
+                <button key={execution.id} className="mt-4 flex items-center text-left gap-4 group cursor-pointer">
+                  <SquareIcon variant={execution.outcome} className="group-hover:bg-c-dim/20" />
+                  <div>
+                    <h3 className="text-base font-medium group-hover:text-white">
+                      {execution.outcome === "success" ? "Successfully executed" : "Failed to execute"}
+                    </h3>
+                    <p className="font-light italic text-c-dim">{execution.completedAt.toLocaleString()}</p>
+                  </div>
+                </button>
+              ))}
+              {query.data.executions.length === 0 && <SquareIcon variant="no_data" />}
+            </div>
+            {query.data.executions.length > 0 && (
+              <div className="col-span-6 p-6">
+                <h2 className="mb-6 text-xl font-extralight">Execution Details</h2>
+                <p className="text-c-dim font-extralight">Select an execution to see its details.</p>
+              </div>
+            )}
           </>
         )}
       </Paper>

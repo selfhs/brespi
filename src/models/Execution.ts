@@ -3,6 +3,7 @@ import { Temporal } from "@js-temporal/polyfill";
 import { z } from "zod/v4";
 
 export type Execution = {
+  id: string;
   outcome: Execution.Outcome;
   duration: Temporal.Duration;
   startedAt: Temporal.PlainDateTime;
@@ -18,6 +19,7 @@ export namespace Execution {
   export const parse = ZodParser.forType<Execution>()
     .ensureSchemaMatchesType(
       z.object({
+        id: z.string(),
         outcome: z.enum(Outcome),
         duration: z.string().transform(Temporal.Duration.from),
         startedAt: z.string().transform((x) => Temporal.PlainDateTime.from(x)),
