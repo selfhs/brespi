@@ -5,7 +5,6 @@ import { createBrowserRouter, replace, RouterProvider } from "react-router";
 import { ClientRegistry } from "./clients/ClientRegistry";
 import { schedules } from "./pages/schedules";
 import { configuration } from "./pages/configuration";
-import { demo } from "./pages/demo";
 import { pipelines } from "./pages/pipelines";
 import { pipelines_$id } from "./pages/pipelines.$id";
 
@@ -25,10 +24,6 @@ const router = createBrowserRouter([
   {
     path: "configuration",
     Component: configuration,
-  },
-  {
-    path: "demo", // TODO: remove
-    Component: demo,
   },
   {
     path: "*",

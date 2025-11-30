@@ -34,7 +34,7 @@ export function pipelines_$id() {
 
   return (
     <Skeleton>
-      <Paper className="col-span-full">
+      <Paper className="col-span-full u-subgrid">
         {query.error ? (
           <div className="p-6 text-center">
             <ErrorDump error={query.error} />
@@ -46,15 +46,15 @@ export function pipelines_$id() {
         ) : (
           <>
             {/* HEADER */}
-            <div className="p-6 flex justify-between items-center">
-              <h1 className="text-lg">{query.data.name}</h1>
+            <div className="col-span-full p-6 flex justify-between items-center">
+              <h1 className="text-xl font-extralight">{query.data.name}</h1>
               <div className="flex gap-4">
                 <Button icon="play">Execute</Button>
                 <Button>Edit</Button>
               </div>
             </div>
             {/* CANVAS */}
-            <div className="px-6">
+            <div className="col-span-full px-6 h-[400px]">
               <Canvas
                 ref={canvas}
                 mode={mode}
@@ -64,9 +64,8 @@ export function pipelines_$id() {
               />
             </div>
             {/* DETAILS */}
-            <div className="p-6">
-              <p>Details Go Here</p>
-            </div>
+            <div className="col-span-6 p-6">Execution History</div>
+            <div className="col-span-6 p-6">Execution Details</div>
           </>
         )}
       </Paper>

@@ -19,8 +19,8 @@ export function createPaper({ element, blocksRef, validateArrow, initialBlocks }
   const paper = new dia.Paper({
     el: element,
     model: graph,
-    width: 1000,
-    height: 400,
+    width: element.clientWidth || 1000,
+    height: element.clientHeight || 500,
     background: { color: "#F8F9FA" },
     cellViewNamespace: namespace,
     gridSize: 1, // Free-form movement (no snapping)

@@ -99,9 +99,20 @@ export function Canvas({ ref, mode, initialBlocks, onBlocksChange, className }: 
     setupLinkInteractions(graph, notifyBlocksChangeWithGraph);
     const cleanupPanning = setupPanning(paper);
 
+    // Setup ResizeObserver to make canvas responsive
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        console.log({ width, height });
+        paper.setDimensions(width, height);
+      }
+    });
+    resizeObserver.observe(element.current.parentElement!);
+
     setPaper(paper);
     return () => {
       cleanupPanning();
+      resizeObserver.disconnect();
       paper.remove();
     };
   }, []);
