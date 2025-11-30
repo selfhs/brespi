@@ -6,7 +6,7 @@ export class PipelineClient {
 
   public async query(): Promise<PipelineView[]> {
     const { body } = await this.yesttp.get<PipelineView[]>("/pipelines");
-    return PipelineView.parse(body);
+    return body.map(PipelineView.parse);
   }
 
   public async find(id: string): Promise<PipelineView> {

@@ -9,11 +9,10 @@ export type Pipeline = {
 };
 
 export namespace Pipeline {
-  export const parse = Parser.create<Pipeline>(
-    z.object({
-      id: z.string(),
-      name: z.string(),
-      steps: z.array(Step.parse.SCHEMA),
-    }),
-  );
+  const schema = z.object({
+    id: z.string(),
+    name: z.string(),
+    steps: z.array(Step.parse.SCHEMA),
+  });
+  export const parse = Parser.fromSchema<Pipeline, z.Infer<typeof schema>>(schema).ensureTypeEquivalence();
 }

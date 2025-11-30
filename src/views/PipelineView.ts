@@ -8,11 +8,10 @@ export type PipelineView = Pipeline & {
 };
 
 export namespace PipelineView {
-  export const parse = Parser.create<PipelineView>(
-    Pipeline.parse.SCHEMA.and(
-      z.object({
-        executions: z.array(Execution.parse.SCHEMA),
-      }),
-    ),
+  const schema = Pipeline.parse.SCHEMA.and(
+    z.object({
+      executions: z.array(Execution.parse.SCHEMA),
+    }),
   );
+  export const parse = Parser.fromSchema<PipelineView, z.Infer<typeof schema>>(schema).ensureTypeEquivalence();
 }

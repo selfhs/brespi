@@ -197,6 +197,10 @@ export namespace Step {
       selection: z.union([z.object({ strategy: z.literal("latest") }), z.object({ strategy: z.literal("version"), version: z.string() })]),
     } satisfies SubSchema<Step.S3Download>),
   ]);
+
+  const superP = Parser.fromSchema<Step, z.Infer<typeof schema>>(schema).ensureTypeEquivalence();
+  const x = superP(["lol123"]);
+
   export function parse(unknown: unknown): Step {
     // Below ensures that Step is assignable to Zod
     const unionTypeExhaustionCheck: z.Infer<typeof schema> = undefined as unknown as Step;

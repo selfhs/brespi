@@ -15,12 +15,11 @@ export namespace Execution {
     error = "error",
   }
 
-  export const parse = Parser.create<Execution>(
-    z.object({
-      outcome: z.enum(Outcome),
-      duration: z.string().transform(Temporal.Duration.from),
-      startedAt: z.string().transform((x) => Temporal.PlainDateTime.from(x)),
-      completedAt: z.string().transform((x) => Temporal.PlainDateTime.from(x)),
-    }),
-  );
+  const schema = z.object({
+    outcome: z.enum(Outcome),
+    duration: z.string().transform(Temporal.Duration.from),
+    startedAt: z.string().transform((x) => Temporal.PlainDateTime.from(x)),
+    completedAt: z.string().transform((x) => Temporal.PlainDateTime.from(x)),
+  });
+  export const parse = Parser.fromSchema<Execution, z.Infer<typeof schema>>(schema).ensureTypeEquivalence();
 }
