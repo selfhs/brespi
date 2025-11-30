@@ -1,11 +1,10 @@
-import { Config } from "@/Config";
+import { Env } from "@/Env";
 import { NamingHelper } from "@/helpers/NamingHelper";
 import { Artifact } from "@/models/Artifact";
 import { Step } from "@/models/Step";
 import { Temporal } from "@js-temporal/polyfill";
 import { spawn } from "bun";
-import { rm } from "fs/promises";
-import { rename } from "fs/promises";
+import { rename, rm } from "fs/promises";
 import { join } from "path";
 import { z } from "zod/v4";
 
@@ -24,7 +23,7 @@ export class PostgresAdapter {
     const scriptPath = join(import.meta.dir, "pg_backup.sh");
 
     // Prepare environment variables based on selection mode
-    const tempDir = await Config.createTempDir();
+    const tempDir = await Env.createTempDir();
     const env = {
       PGHOST: this.opts.host,
       PGUSER: this.opts.user,

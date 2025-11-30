@@ -3,7 +3,7 @@ import { mkdir } from "fs/promises";
 import { join } from "path";
 import { z } from "zod/v4";
 
-export const Config = z
+export const Env = z
   .object({
     O_BRESPI_STAGE: z.enum(["development", "production"]),
     X_BRESPI_ROOT: z.string(),
@@ -20,10 +20,10 @@ export const Config = z
   }))
   .parse(Bun.env);
 
-export namespace Config {
+export namespace Env {
   export type PublicPrefix = "O_BRESPI_";
 
-  type C = typeof Config;
+  type C = typeof Env;
   export type Public = {
     [K in keyof C as K extends `${PublicPrefix}${string}` ? K : never]: C[K] extends z.ZodTypeAny ? z.infer<C[K]> : C[K];
   };

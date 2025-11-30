@@ -1,5 +1,5 @@
 import { Yesttp } from "yesttp";
-import { Config } from "@/Config";
+import { Env } from "@/Env";
 import { createContext } from "react";
 import { Class } from "@/types/Class";
 import { ProblemDetails } from "@/models/ProblemDetails";
@@ -14,14 +14,14 @@ export class ClientRegistry {
    * In other frameworks, we'd have to use a build-time variable containing the configuration URL.
    */
   public static async bootstrap(): Promise<ClientRegistry> {
-    const { body: configuration } = await new Yesttp({ baseUrl: "/api" }).get<Config.Public>("/config");
-    console.table(configuration);
-    return new ClientRegistry(configuration);
+    const { body: env } = await new Yesttp({ baseUrl: "/api" }).get<Env.Public>("/env");
+    console.table(env);
+    return new ClientRegistry(env);
   }
 
   private readonly registry: Record<string, any> = {};
 
-  public constructor(private readonly config: Config.Public) {
+  public constructor(private readonly env: Env.Public) {
     const yesttp = (this.registry[Yesttp.name] = new Yesttp({
       baseUrl: "/api",
       responseErrorIntercepter: (request, response): Promise<ProblemDetails> => {
@@ -38,8 +38,8 @@ export class ClientRegistry {
     });
   }
 
-  public getConfig() {
-    return this.config;
+  public getEnv() {
+    return this.env;
   }
 
   public get<T>(klass: Class<T>): T {

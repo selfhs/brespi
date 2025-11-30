@@ -1,4 +1,4 @@
-import { Config } from "@/Config";
+import { Env } from "@/Env";
 import { Artifact } from "@/models/Artifact";
 import { join } from "path";
 
@@ -13,7 +13,7 @@ export class NamingHelper {
 
   public static generatePath({ name, timestamp }: Pick<Artifact, "name" | "timestamp">): string {
     const filename = `${timestamp}.${NamingHelper.generateShortId()}.${NamingHelper.sanitizeName(name)}`;
-    return join(Config.artifactsRoot(), filename);
+    return join(Env.artifactsRoot(), filename);
   }
 
   public static parseLogicalName(validFileName: string): string {

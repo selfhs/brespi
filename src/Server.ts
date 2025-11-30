@@ -1,4 +1,4 @@
-import { Config } from "@/Config";
+import { Env } from "@/Env";
 import { Exception } from "@/errors/Exception";
 import { ServerError } from "@/errors/ServerError";
 import index from "@/website/index.html";
@@ -14,7 +14,7 @@ export class Server {
 
   public listen() {
     const server = serve({
-      development: Config.O_BRESPI_STAGE === "development",
+      development: Env.O_BRESPI_STAGE === "development",
       routes: {
         /**
          * Defaults
@@ -25,15 +25,15 @@ export class Server {
         },
 
         /**
-         * Configuration
+         * Env
          */
-        "/api/config": {
+        "/api/env": {
           GET: async () => {
-            const response = Object.entries(Config)
-              .filter(([key]) => key.startsWith("O_BRESPI_" satisfies Config.PublicPrefix))
+            const response = Object.entries(Env)
+              .filter(([key]) => key.startsWith("O_BRESPI_" satisfies Env.PublicPrefix))
               .map(([key, value]) => ({ [key]: value }))
               .reduce((kv1, kv2) => Object.assign({}, kv1, kv2), {});
-            return Response.json(response as Config.Public);
+            return Response.json(response as Env.Public);
           },
         },
 

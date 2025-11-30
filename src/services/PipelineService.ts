@@ -1,5 +1,5 @@
 import { AdapterService } from "@/adapters/AdapterService";
-import { Config } from "@/Config";
+import { Env } from "@/Env";
 import { Artifact } from "@/models/Artifact";
 import { Pipeline } from "@/models/Pipeline";
 import { rm } from "fs/promises";
@@ -20,7 +20,7 @@ export class PipelineService {
   }
 
   private async cleanup(artifacts: Artifact[]): Promise<void> {
-    const artifactsWithinRootFolder = artifacts.filter((a) => a.path.startsWith(Config.artifactsRoot()));
+    const artifactsWithinRootFolder = artifacts.filter((a) => a.path.startsWith(Env.artifactsRoot()));
     for (const artifact of artifactsWithinRootFolder) {
       await rm(artifact.path, { recursive: true, force: true });
     }

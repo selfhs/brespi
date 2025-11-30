@@ -46,7 +46,7 @@ export function Website() {
       <ClientRegistry.Context.Provider value={registry}>
         <QueryClientProvider client={registry.get(QueryClient)}>
           <RouterProvider router={router} />
-          {registry.getConfig().O_BRESPI_STAGE === "development" && <ReactQueryDevtools />}
+          {registry.getEnv().O_BRESPI_STAGE === "development" && <ReactQueryDevtools />}
         </QueryClientProvider>
       </ClientRegistry.Context.Provider>
     );

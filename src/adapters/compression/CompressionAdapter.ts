@@ -1,14 +1,11 @@
-import { stat, mkdir } from "fs/promises";
-import { spawn } from "bun";
+import { Env } from "@/Env";
+import { FolderHelper } from "@/helpers/FolderHelper";
+import { NamingHelper } from "@/helpers/NamingHelper";
 import { Artifact } from "@/models/Artifact";
 import { Step } from "@/models/Step";
-import { NamingHelper } from "@/helpers/NamingHelper";
+import { spawn } from "bun";
+import { rename, rm, stat } from "fs/promises";
 import { basename, dirname } from "path";
-import { Config } from "@/Config";
-import { rm } from "fs/promises";
-import { FolderHelper } from "@/helpers/FolderHelper";
-import { rename } from "fs/promises";
-import { cp } from "fs/promises";
 
 export class CompressionAdapter {
   public async compress(artifact: Artifact, options: Step.Compression): Promise<Artifact> {
@@ -50,7 +47,7 @@ export class CompressionAdapter {
     }
 
     const inputPath = artifact.path;
-    const tempPath = await Config.createTempDir();
+    const tempPath = await Env.createTempDir();
 
     // const outputPath = NamingHelper.generatePath(artifact);
     try {

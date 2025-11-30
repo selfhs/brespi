@@ -1,4 +1,4 @@
-import { Parser } from "@/parsing/Parser";
+import { Parser } from "@/helpers/Parser";
 import { Temporal } from "@js-temporal/polyfill";
 import { z } from "zod/v4";
 
