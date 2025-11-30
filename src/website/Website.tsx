@@ -7,6 +7,7 @@ import { schedules } from "./pages/schedules";
 import { configuration } from "./pages/configuration";
 import { pipelines } from "./pages/pipelines";
 import { pipelines_$id } from "./pages/pipelines.$id";
+import { settings } from "./pages/settings";
 
 const router = createBrowserRouter([
   {
@@ -20,6 +21,10 @@ const router = createBrowserRouter([
   {
     path: "schedules",
     Component: schedules,
+  },
+  {
+    path: "settings",
+    Component: settings,
   },
   {
     path: "configuration",
