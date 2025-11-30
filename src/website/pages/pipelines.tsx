@@ -12,7 +12,7 @@ import { Spinner } from "../comps/Spinner";
 import { SquareIcon } from "../comps/SquareIcon";
 import { useRegistry } from "../hooks/useRegistry";
 
-export function $PipelineOverview() {
+export function _pipelines() {
   const pipelineClient = useRegistry.instance(PipelineClient);
 
   const query = useQuery<PipelineVisualization[], ProblemDetails>({

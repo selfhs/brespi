@@ -3,7 +3,7 @@ import { Step } from "../models/Step";
 
 export namespace PipelineData {
   export const POSTGRES_BACKUP: Pipeline = {
-    id: Bun.randomUUIDv7(),
+    id: "342698472-pgb-2173",
     name: "My Postgres Backup Pipeline",
     steps: [
       {
@@ -38,7 +38,7 @@ export namespace PipelineData {
   };
 
   export const WP_BACKUP: Pipeline = {
-    id: Bun.randomUUIDv7(),
+    id: "872318923-wpb-28917383",
     name: "My Wordpress Pipeline for /wp-uploads (work in progress)",
     steps: [
       {
@@ -51,7 +51,7 @@ export namespace PipelineData {
   };
 
   export const RESTORE: Pipeline = {
-    id: Bun.randomUUIDv7(),
+    id: "5672129810-rs-36746853",
     name: "My Restore Pipeline",
     steps: [
       {

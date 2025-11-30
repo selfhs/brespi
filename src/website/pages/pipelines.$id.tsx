@@ -9,8 +9,9 @@ import { Paper } from "../comps/Paper";
 import { Skeleton } from "../comps/Skeleton";
 import { Spinner } from "../comps/Spinner";
 import { useRegistry } from "../hooks/useRegistry";
+import "./pipelines.$id.css";
 
-export function $Pipeline() {
+export function _pipelines_$id() {
   const { id } = useParams();
   const pipelineClient = useRegistry.instance(PipelineClient);
 

@@ -3,7 +3,7 @@ import { Canvas } from "@/website/canvas/Canvas";
 import { useRef, useState } from "react";
 import { BlockWithProposedHandle } from "../canvas/BlockWithProposedHandle";
 
-export function $Demo() {
+export function _demo() {
   const canvas = useRef<Canvas.Api>(null);
   const [mode, setMode] = useState<"viewing" | "editing">("editing");
   const [blocks, setBlocks] = useState<Block[]>(TESTDATA);
