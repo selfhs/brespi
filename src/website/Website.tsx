@@ -3,32 +3,32 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useEffect, useState } from "react";
 import { createBrowserRouter, replace, RouterProvider } from "react-router";
 import { ClientRegistry } from "./clients/ClientRegistry";
-import { _schedules } from "./pages/schedules";
-import { _configuration } from "./pages/configuration";
-import { _demo } from "./pages/demo";
-import { _pipelines } from "./pages/pipelines";
-import { _pipelines_$id } from "./pages/pipelines.$id";
+import { schedules } from "./pages/schedules";
+import { configuration } from "./pages/configuration";
+import { demo } from "./pages/demo";
+import { pipelines } from "./pages/pipelines";
+import { pipelines_$id } from "./pages/pipelines.$id";
 
 const router = createBrowserRouter([
   {
     path: "pipelines",
-    Component: _pipelines,
+    Component: pipelines,
   },
   {
     path: "pipelines/:id",
-    Component: _pipelines_$id,
+    Component: pipelines_$id,
   },
   {
     path: "schedules",
-    Component: _schedules,
+    Component: schedules,
   },
   {
     path: "configuration",
-    Component: _configuration,
+    Component: configuration,
   },
   {
     path: "demo", // TODO: remove
-    Component: _demo,
+    Component: demo,
   },
   {
     path: "*",

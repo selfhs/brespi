@@ -12,14 +12,14 @@ import { Spinner } from "../comps/Spinner";
 import { SquareIcon } from "../comps/SquareIcon";
 import { useRegistry } from "../hooks/useRegistry";
 
-export function _pipelines() {
+export function pipelines() {
   const pipelineClient = useRegistry.instance(PipelineClient);
 
   const query = useQuery<PipelineVisualization[], ProblemDetails>({
     queryKey: [QueryKey.pipelines],
     queryFn: () =>
-      pipelineClient.query().then<PipelineVisualization[]>((pipelineViews) => [
-        ...pipelineViews.map(PipelineVisualization.convert),
+      pipelineClient.query().then<PipelineVisualization[]>((pipelines) => [
+        ...pipelines.map(PipelineVisualization.convert),
         {
           link: "/pipelines/new",
           title: "New Pipeline ...",

@@ -1,33 +1,11 @@
 import { Block } from "@/website/canvas/Block";
 import { Canvas } from "@/website/canvas/Canvas";
 import { useRef, useState } from "react";
-import { BlockWithProposedHandle } from "../canvas/BlockWithProposedHandle";
 
-export function _demo() {
+export function demo() {
   const canvas = useRef<Canvas.Api>(null);
   const [mode, setMode] = useState<"viewing" | "editing">("editing");
   const [blocks, setBlocks] = useState<Block[]>(TESTDATA);
-
-  const validateArrow = (source: BlockWithProposedHandle, target: BlockWithProposedHandle): boolean => {
-    // Prevent self-linking
-    if (source.id === target.id) {
-      return false;
-    }
-    // Validate port types: source must have output, target must have input
-    if (!source.handles.includes(Block.Handle.output) || !target.handles.includes(Block.Handle.input)) {
-      return false;
-    }
-    // Only allow links from input to output
-    if (source.proposedHandle !== Block.Handle.output || target.proposedHandle !== Block.Handle.input) {
-      return false;
-    }
-    // Each block can only have a single incoming arrow
-    if (target.incomingId !== undefined) {
-      return false;
-    }
-    // All good!
-    return true;
-  };
 
   const handleBlocksChange = (updatedBlocks: Block[]) => {
     setBlocks(updatedBlocks);
@@ -53,7 +31,6 @@ export function _demo() {
         mode={mode}
         initialBlocks={blocks}
         onBlocksChange={handleBlocksChange}
-        validateArrow={validateArrow}
         className="border-2 border-black rounded-lg shadow-md"
       />
 
@@ -65,25 +42,21 @@ export function _demo() {
 const TESTDATA: Block[] = [
   {
     id: "p1",
-    coordinates: { x: 50, y: 150 },
     label: "Producer 1",
     handles: [Block.Handle.output],
   },
   {
     id: "t1",
-    coordinates: { x: 280, y: 150 },
     label: "Transformer 1",
     handles: [Block.Handle.input, Block.Handle.output],
   },
   {
     id: "c1",
-    coordinates: { x: 510, y: 80 },
     label: "Consumer 1",
     handles: [Block.Handle.input],
   },
   {
     id: "c2",
-    coordinates: { x: 510, y: 220 },
     label: "Consumer 2",
     handles: [Block.Handle.input],
   },

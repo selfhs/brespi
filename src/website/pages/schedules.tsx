@@ -1,6 +1,6 @@
 import { Skeleton } from "../comps/Skeleton";
 
-export function _schedules() {
+export function schedules() {
   return (
     <Skeleton>
       <h1>Welcome to the Schedule Overview</h1>

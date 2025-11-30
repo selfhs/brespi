@@ -1,9 +1,6 @@
-import { Coordinates } from "./Coordinates";
-
 export type Block = {
   id: string;
   incomingId?: string;
-  coordinates: Coordinates;
   label: string;
   handles: Block.Handle[];
 };

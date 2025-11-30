@@ -1,6 +1,6 @@
 import { Skeleton } from "../comps/Skeleton";
 
-export function _configuration() {
+export function configuration() {
   return (
     <Skeleton>
       <h1>Welcome to the Configuration</h1>

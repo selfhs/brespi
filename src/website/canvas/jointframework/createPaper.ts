@@ -1,14 +1,15 @@
 import { dia, shapes } from "@joint/core";
 import { RefObject } from "react";
 import { Block } from "../Block";
-import { BlockWithProposedHandle } from "../BlockWithProposedHandle";
 import { createCell } from "./createCell";
+import { JointBlockWithProposedHandle } from "./helpers/JointBlockWithProposedHandle";
+import { JointBlock } from "./helpers/JointBlock";
 
 type Options = {
   element: HTMLElement;
-  blocksRef: RefObject<Block[]>;
-  validateArrow: (source: BlockWithProposedHandle, target: BlockWithProposedHandle) => boolean;
-  initialBlocks: Block[];
+  blocksRef: RefObject<JointBlock[]>;
+  validateArrow: (source: JointBlockWithProposedHandle, target: JointBlockWithProposedHandle) => boolean;
+  initialBlocks: JointBlock[];
 };
 
 export function createPaper({ element, blocksRef, validateArrow, initialBlocks }: Options) {
@@ -19,7 +20,7 @@ export function createPaper({ element, blocksRef, validateArrow, initialBlocks }
     el: element,
     model: graph,
     width: 1000,
-    height: 600,
+    height: 400,
     background: { color: "#F8F9FA" },
     cellViewNamespace: namespace,
     gridSize: 1, // Free-form movement (no snapping)

@@ -1,20 +1,23 @@
-import successSvg from "../images/success.svg";
+import { cloneElement, JSX } from "react";
 import errorSvg from "../images/error.svg";
 import newSvg from "../images/new.svg";
-import { cloneElement, JSX, ReactNode } from "react";
+import playSvg from "../images/play.svg";
+import successSvg from "../images/success.svg";
+
+const images: Record<Icon.Props["variant"], JSX.Element> = {
+  success: <img src={successSvg} />,
+  error: <img src={errorSvg} />,
+  new: <img src={newSvg} />,
+  play: <img src={playSvg} />,
+};
 
 export function Icon({ variant, className }: Icon.Props) {
-  const images: Record<typeof variant, JSX.Element> = {
-    success: <img src={successSvg} />,
-    error: <img src={errorSvg} />,
-    new: <img src={newSvg} />,
-  };
   return cloneElement(images[variant], { className });
 }
 
 export namespace Icon {
   export type Props = {
-    variant: "success" | "error" | "new";
+    variant: "success" | "error" | "new" | "play";
     className?: string;
   };
 }

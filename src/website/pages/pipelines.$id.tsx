@@ -10,15 +10,27 @@ import { Skeleton } from "../comps/Skeleton";
 import { Spinner } from "../comps/Spinner";
 import { useRegistry } from "../hooks/useRegistry";
 import "./pipelines.$id.css";
+import { Button } from "../comps/Button";
+import { Canvas } from "../canvas/Canvas";
+import { Block } from "../canvas/Block";
+import { Step } from "@/models/Step";
+import { useRef, useState } from "react";
 
-export function _pipelines_$id() {
+export function pipelines_$id() {
   const { id } = useParams();
   const pipelineClient = useRegistry.instance(PipelineClient);
 
-  const query = useQuery<PipelineView, ProblemDetails>({
+  const query = useQuery<PipelineWithBlocks, ProblemDetails>({
     queryKey: [QueryKey.pipelines, id],
-    queryFn: () => pipelineClient.find(id!),
+    queryFn: () => pipelineClient.find(id!).then<PipelineWithBlocks>(PipelineWithBlocks.convert),
   });
+
+  const canvas = useRef<Canvas.Api>(null);
+  const [mode, setMode] = useState<"viewing" | "editing">("editing");
+
+  const handleBlocksChange = (updatedBlocks: Block[]) => {
+    console.log(updatedBlocks);
+  };
 
   return (
     <Skeleton>
@@ -32,9 +44,58 @@ export function _pipelines_$id() {
             <Spinner />
           </div>
         ) : (
-          <pre>{JSON.stringify(query.data, null, 2)}</pre>
+          <>
+            {/* HEADER */}
+            <div className="p-6 flex justify-between items-center">
+              <h1 className="text-lg">{query.data.name}</h1>
+              <div className="flex gap-4">
+                <Button icon="play">Execute</Button>
+                <Button>Edit</Button>
+              </div>
+            </div>
+            {/* CANVAS */}
+            <div className="px-6">
+              <Canvas
+                ref={canvas}
+                mode={mode}
+                initialBlocks={query.data.blocks}
+                onBlocksChange={handleBlocksChange}
+                className="border-2 border-black rounded-lg"
+              />
+            </div>
+            {/* DETAILS */}
+            <div className="p-6">
+              <p>Details Go Here</p>
+            </div>
+          </>
         )}
       </Paper>
     </Skeleton>
   );
+}
+
+type PipelineWithBlocks = PipelineView & {
+  blocks: Block[];
+};
+
+namespace PipelineWithBlocks {
+  export function convert(pipeline: PipelineView): PipelineWithBlocks {
+    return {
+      ...pipeline,
+      blocks: pipeline.steps.map((step) => {
+        const handles: Record<Step.Category, Block.Handle[]> = {
+          [Step.Category.producer]: [Block.Handle.output],
+          [Step.Category.transformer]: [Block.Handle.output, Block.Handle.input],
+          [Step.Category.consumer]: [Block.Handle.input],
+        };
+        return {
+          id: step.id,
+          incomingId: step.previousStepId,
+          coordinates: { x: 0, y: 0 },
+          label: step.type,
+          handles: handles[Step.getCategory(step)],
+        };
+      }),
+    };
+  }
 }

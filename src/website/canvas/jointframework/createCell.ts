@@ -1,7 +1,8 @@
 import { dia, shapes } from "@joint/core";
 import { Block } from "../Block";
+import { JointBlock } from "./helpers/JointBlock";
 
-export function createCell(block: Block) {
+export function createCell(block: JointBlock) {
   const items: dia.Element.Port[] = [];
   const groups: Record<string, dia.Element.PortGroup> = {};
 
