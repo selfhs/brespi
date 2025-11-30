@@ -36,11 +36,11 @@ export function pipelines_$id() {
     <Skeleton>
       <Paper className="col-span-full u-subgrid">
         {query.error ? (
-          <div className="p-6 text-center">
+          <div className="col-span-full p-6 text-center">
             <ErrorDump error={query.error} />
           </div>
         ) : !query.data ? (
-          <div className="p-6 text-center">
+          <div className="col-span-full p-6 text-center">
             <Spinner />
           </div>
         ) : (

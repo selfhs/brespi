@@ -6,8 +6,8 @@ import { ErrorLike, serve } from "bun";
 import { PipelineService } from "./services/PipelineService";
 import { PipelineView } from "./views/PipelineView";
 import { PipelineError } from "./errors/PipelineError";
-import { PipelineData } from "./testdata/PipelineData";
-import { PipelineViewData } from "./testdata/PipelineViewData";
+import { PipelineData } from "./__testdata__/PipelineData";
+import { PipelineViewData } from "./__testdata__/PipelineViewData";
 
 export class Server {
   public constructor(private readonly pipelineService: PipelineService) {}
