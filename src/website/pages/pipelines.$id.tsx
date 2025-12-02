@@ -1,21 +1,26 @@
 import { ProblemDetails } from "@/models/ProblemDetails";
+import { Step } from "@/models/Step";
 import { PipelineView } from "@/views/PipelineView";
 import { useQuery } from "@tanstack/react-query";
+import { useRef, useState } from "react";
 import { useParams } from "react-router";
+import { Block } from "../canvas/Block";
+import { Canvas } from "../canvas/Canvas";
 import { PipelineClient } from "../clients/PipelineClient";
 import { QueryKey } from "../clients/QueryKey";
+import { Button } from "../comps/Button";
 import { ErrorDump } from "../comps/ErrorDump";
 import { Paper } from "../comps/Paper";
 import { Skeleton } from "../comps/Skeleton";
 import { Spinner } from "../comps/Spinner";
+import { SquareIcon } from "../comps/SquareIcon";
 import { useRegistry } from "../hooks/useRegistry";
 import "./pipelines.$id.css";
-import { Button } from "../comps/Button";
-import { Canvas } from "../canvas/Canvas";
-import { Block } from "../canvas/Block";
-import { Step } from "@/models/Step";
-import { useRef, useState } from "react";
-import { SquareIcon } from "../comps/SquareIcon";
+
+type Form = {
+  name: string;
+  steps: Step[];
+};
 
 export function pipelines_$id() {
   const { id } = useParams();
@@ -69,7 +74,7 @@ export function pipelines_$id() {
               <h2 className="mb-6 text-xl font-extralight">Execution History</h2>
               {query.data.executions.map((execution) => (
                 <button key={execution.id} className="mt-4 flex items-center text-left gap-4 group cursor-pointer">
-                  <SquareIcon variant={execution.outcome} className="group-hover:bg-c-dim/20" />
+                  <SquareIcon variant={execution.outcome} className="group-hover:border-white group-hover:bg-c-dim/20" />
                   <div>
                     <h3 className="text-base font-medium group-hover:text-white">
                       {execution.outcome === "success" ? "Successfully executed" : "Failed to execute"}

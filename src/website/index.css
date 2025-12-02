@@ -70,8 +70,7 @@
     /* DESKTOP FIRST / PART A -> https://stackoverflow.com/a/79607480 */
     --breakpoint-*: initial;
     /* Fonts */
-    --font-f-display: "Inter", sans-serif;
-    --font-f-body: "Inter", sans-serif;
+    --font-f-everywhere: "Inter", sans-serif;
     /* Colors */
     --color-c-primary: #d4d4d4;
     --color-c-success: #b8ffba;
@@ -110,18 +109,10 @@
     }
 
     body {
-        @apply font-f-body text-c-primary min-w-[320px] min-h-screen relative m-0;
+        @apply font-f-everywhere text-c-primary min-w-[320px] min-h-screen relative m-0;
         font-optical-sizing: auto;
     }
     #root {
         @apply u-root-grid;
-    }
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-        @apply font-f-display;
     }
 }
