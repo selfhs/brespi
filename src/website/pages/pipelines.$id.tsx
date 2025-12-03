@@ -19,6 +19,7 @@ import { Spinner } from "../comps/Spinner";
 import { SquareIcon } from "../comps/SquareIcon";
 import { useRegistry } from "../hooks/useRegistry";
 import "./pipelines.$id.css";
+import { useNavigate } from "react-router";
 
 type Form = {
   mode: "viewing" | "editing";
@@ -28,6 +29,7 @@ type Form = {
 
 export function pipelines_$id() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const pipelineClient = useRegistry.instance(PipelineClient);
 
   const query = useQuery<PipelineWithBlocks | "new", ProblemDetails>({
@@ -57,8 +59,12 @@ export function pipelines_$id() {
     }
   };
   const cancel = () => {
-    console.log("TODO: undo form changes");
-    form.setValue("mode", "viewing");
+    if (query.data === "new") {
+      navigate("/pipelines");
+    } else {
+      console.log("TODO: undo form changes");
+      form.setValue("mode", "viewing");
+    }
   };
   const save = () => {
     console.log("TODO: save updated pipeline");
@@ -191,7 +197,7 @@ export function pipelines_$id() {
             ) : (
               <>
                 {buttonGroups.map((bg) => (
-                  <div key={bg.category} className="col-span-4 p-6 pr-3 flex flex-col">
+                  <div key={bg.category} className="col-span-4 px-6 pt-10 pb-20 pr-3 flex flex-col">
                     <ArtifactSymbol variant={bg.category} />
                     <div className="font-extralight text-c-dim mt-3">{bg.categoryLabel}</div>
                     <div className="flex flex-wrap gap-2 mt-6">
@@ -249,11 +255,14 @@ namespace AvailableButtons {
 
   export function getButtonGroups(): ButtonGroup[] {
     const buttonGroups: ButtonGroup[] = [];
+
     const categoryLabels: Record<Step.Category, string> = {
       [Step.Category.producer]: "Artifact producers",
       [Step.Category.transformer]: "Artifact transformers",
       [Step.Category.consumer]: "Artifact consumers",
     };
+    const categoryOrder: Step.Category[] = [Step.Category.producer, Step.Category.transformer, Step.Category.consumer];
+
     const typeLabels: Record<Step.Type, string> = {
       [Step.Type.fs_read]: "Filesystem Read",
       [Step.Type.fs_write]: "Filesystem Write",
@@ -265,19 +274,51 @@ namespace AvailableButtons {
       [Step.Type.s3_upload]: "S3 Upload",
       [Step.Type.s3_download]: "S3 Download",
     };
+    const typeOrder: Step.Type[] = [
+      // Producers
+      Step.Type.postgres_backup,
+      Step.Type.s3_download,
+      Step.Type.fs_read,
+      // Transformers
+      Step.Type.compression,
+      Step.Type.decompression,
+      Step.Type.encryption,
+      Step.Type.decryption,
+      // Consumers
+      Step.Type.s3_upload,
+      Step.Type.fs_write,
+    ];
+
     Object.values(Step.Type).map((type) => {
       const category = Step.getCategory({ type });
       const existing = buttonGroups.find((x) => x.category === category);
       if (existing) {
-        existing.steps.push({ type, typeLabel: typeLabels[type] });
+        existing.steps.push({
+          type,
+          typeLabel: typeLabels[type],
+        });
       } else {
         buttonGroups.push({
           category,
           categoryLabel: categoryLabels[category],
-          steps: [{ type, typeLabel: typeLabels[type] }],
+          steps: [
+            {
+              type,
+              typeLabel: typeLabels[type],
+            },
+          ],
         });
       }
     });
-    return buttonGroups;
+    return [...buttonGroups]
+      .sort(({ category: c1 }, { category: c2 }) => {
+        return categoryOrder.indexOf(c1) - categoryOrder.indexOf(c2);
+      })
+      .map(({ steps, ...bg }) => ({
+        ...bg,
+        steps: [...steps].sort(({ type: t1 }, { type: t2 }) => {
+          return typeOrder.indexOf(t1) - typeOrder.indexOf(t2);
+        }),
+      }));
   }
 }
