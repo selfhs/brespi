@@ -3,7 +3,7 @@ import { Step } from "@/models/Step";
 import { PipelineView } from "@/views/PipelineView";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useParams } from "react-router";
 import { Block } from "../canvas/Block";
@@ -20,6 +20,8 @@ import { SquareIcon } from "../comps/SquareIcon";
 import { useRegistry } from "../hooks/useRegistry";
 import "./pipelines.$id.css";
 import { useNavigate } from "react-router";
+import { Temporal } from "@js-temporal/polyfill";
+import { StepForm } from "../forms/StepForm";
 
 type Form = {
   mode: "viewing" | "editing";
@@ -42,16 +44,19 @@ export function pipelines_$id() {
     },
   });
 
-  const form = useForm<Form>();
+  const [detailForm, setDetailForm] = useState<{ type: Step.Type; existingStep?: Step }>();
+  const mainForm = useForm<Form>();
+
+  const now = useMemo(() => Temporal.Now.plainDateTimeISO(), []);
   const reset = (basis: Logic.PipelineWithBlocks | "new") => {
     if (basis === "new") {
-      form.reset({
+      mainForm.reset({
         mode: "editing",
-        name: "",
+        name: `My New Pipeline (${now.toLocaleString()})`,
         steps: [],
       });
     } else {
-      form.reset({
+      mainForm.reset({
         mode: "viewing",
         name: basis.name,
         steps: basis.steps,
@@ -63,27 +68,49 @@ export function pipelines_$id() {
       navigate("/pipelines");
     } else {
       console.log("TODO: undo form changes");
-      form.setValue("mode", "viewing");
+      mainForm.setValue("mode", "viewing");
     }
   };
   const save = () => {
     console.log("TODO: save updated pipeline");
-    form.setValue("mode", "viewing");
+    mainForm.setValue("mode", "viewing");
+  };
+  const showDetailForm = (type: Step.Type, existingStep?: Step) => {
+    setDetailForm({ type, existingStep });
   };
 
+  /**
+   * Initialze the form
+   */
   useEffect(() => {
     if (query.data) {
       reset(query.data);
     }
-  }, [query.data, form]);
+  }, [query.data, mainForm]);
 
   /**
-   * Only responsibility: update the arrow relations on steps
+   * Handle new or updated steps
+   */
+  const handleStepUpdate = (step: Step) => {
+    const steps = mainForm.getValues("steps");
+    const existingStep: boolean = steps.some((s) => s.id === step.id);
+    if (existingStep) {
+      mainForm.setValue(
+        "steps",
+        steps.map((s) => (s.id === step.id ? step : s)),
+      );
+    } else {
+      mainForm.setValue("steps", [...steps, step]);
+    }
+    setDetailForm(undefined);
+  };
+  /**
+   * Handle arrow relation updates
    */
   const handleCanvasChange = (blocks: Block[]) => {
-    form.setValue(
+    mainForm.setValue(
       "steps",
-      form.getValues("steps").map((step) => {
+      mainForm.getValues("steps").map((step) => {
         const block = blocks.find((b) => b.id === step.id);
         if (!block) {
           throw new Error(`Block not found ???`);
@@ -97,7 +124,7 @@ export function pipelines_$id() {
   };
 
   const canvas = useRef<Canvas.Api>(null);
-  const { mode, name } = form.watch();
+  const { mode, name } = mainForm.watch();
 
   const buttonGroups = useMemo(() => Logic.getButtonGroups(), []);
   return (
@@ -126,19 +153,14 @@ export function pipelines_$id() {
                   {name}
                 </div>
                 {mode === "editing" && (
-                  <input
-                    placeholder="Enter pipeline name ..."
-                    type="text"
-                    className="bg-c-dim/20 py-2 w-full active:border-none"
-                    {...form.register("name")}
-                  />
+                  <input type="text" className="bg-c-dim/20 py-2 w-full active:border-none" {...mainForm.register("name")} />
                 )}
               </h1>
               <div className="flex gap-4">
                 {mode === "viewing" ? (
                   <>
                     <Button icon="play">Execute</Button>
-                    <Button onClick={() => form.setValue("mode", "editing")}>Edit</Button>
+                    <Button onClick={() => mainForm.setValue("mode", "editing")}>Edit</Button>
                   </>
                 ) : (
                   <>
@@ -193,7 +215,7 @@ export function pipelines_$id() {
                   </div>
                 )}
               </>
-            ) : (
+            ) : detailForm === undefined ? (
               <>
                 {buttonGroups.map((bg) => (
                   <div key={bg.category} className="col-span-4 px-6 pt-10 pb-20 pr-3 flex flex-col">
@@ -201,7 +223,7 @@ export function pipelines_$id() {
                     <div className="font-extralight text-c-dim mt-3">{bg.categoryLabel}</div>
                     <div className="flex flex-wrap gap-2 mt-6">
                       {bg.steps.map((step) => (
-                        <Button key={step.type} icon="new" className="border-c-info!">
+                        <Button key={step.type} onClick={() => showDetailForm(step.type)} icon="new" className="border-c-info!">
                           {step.typeLabel}
                         </Button>
                       ))}
@@ -209,6 +231,14 @@ export function pipelines_$id() {
                   </div>
                 ))}
               </>
+            ) : (
+              <StepForm
+                className="col-span-full p-6"
+                type={detailForm.type}
+                existing={detailForm.existingStep}
+                onCancel={() => setDetailForm(undefined)}
+                onSubmit={handleStepUpdate}
+              />
             )}
           </>
         )}

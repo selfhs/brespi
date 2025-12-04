@@ -100,18 +100,18 @@ export function Canvas({ ref, mode, initialBlocks, onBlocksChange, className }: 
     const cleanupPanning = setupPanning(paper);
 
     // Setup ResizeObserver to make canvas responsive
-    const resizeObserver = new ResizeObserver((entries) => {
+    const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const { width, height } = entry.contentRect;
         paper.setDimensions(width, height);
       }
     });
-    resizeObserver.observe(element.current.parentElement!);
+    observer.observe(element.current.parentElement!);
 
     setPaper(paper);
     return () => {
       cleanupPanning();
-      resizeObserver.disconnect();
+      observer.disconnect();
       paper.remove();
     };
   }, []);
