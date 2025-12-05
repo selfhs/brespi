@@ -3,13 +3,14 @@ import { ReactElement, RefObject, useEffect, useImperativeHandle, useRef, useSta
 import { Block } from "./Block";
 import { createCell } from "./jointframework/createCell";
 import { createPaper } from "./jointframework/createPaper";
-import { JointBlock } from "./jointframework/helpers/JointBlock";
-import { JointBlockWithProposedHandle } from "./jointframework/helpers/JointBlockWithProposedHandle";
+import { JointBlock } from "./jointframework/types/JointBlock";
+import { JointBlockWithProposedHandle } from "./jointframework/types/JointBlockWithProposedHandle";
 import { setupBlockInteractions } from "./jointframework/setupBlockInteractions";
 import { setupLinkInteractions } from "./jointframework/setupLinkInteractions";
 import { setupPanning } from "./jointframework/setupPanning";
-import { Dimensions } from "./jointframework/helpers/Dimensions";
-import { Coordinates } from "./jointframework/helpers/Coordinates";
+import { Dimensions } from "./jointframework/types/Dimensions";
+import { Coordinates } from "./jointframework/types/Coordinates";
+import { StylingHelper } from "./jointframework/helpers/StylingHelper";
 
 /**
  * One-way databinding is strongly discouraged for the Canvas editor for performance reasons.
@@ -25,7 +26,6 @@ type Props = {
 
 export function Canvas({ ref, mode, initialBlocks, onBlocksRelationChange, className }: Props): ReactElement {
   const element = useRef<HTMLDivElement>(null);
-  const [activeBlockId, setActiveBlockId] = useState<string>();
   const [initiallyDrawn, setInitiallyDrawn] = useState(false);
 
   const graphRef = useRef<dia.Graph>(null);
@@ -87,6 +87,54 @@ export function Canvas({ ref, mode, initialBlocks, onBlocksRelationChange, class
     graph.addCells(blocksRef.current.map(createCell));
   };
 
+  const format = () => {
+    blocksRef.current = Internal.performSmartPositioning(blocksRef.current, {
+      width: Number(paperRef.current!.options.width),
+      height: Number(paperRef.current!.options.height),
+    });
+    blocksRef.current.forEach((block) => {
+      const cell = graphRef.current!.getCell(block.id);
+      if (cell && block.coordinates) {
+        cell.set("position", { x: block.coordinates.x, y: block.coordinates.y });
+      }
+    });
+  };
+  const insert = (block: Block) => {
+    const newBlock: JointBlock = {
+      ...block,
+      coordinates: Internal.findOptimalNewSpot(blocksRef.current, {
+        width: Number(paperRef.current!.options.width),
+        height: Number(paperRef.current!.options.height),
+      }),
+    };
+    blocksRef.current.push(newBlock);
+    graphRef.current!.addCell(createCell(newBlock));
+  };
+  const remove = (id: string) => {
+    blocksRef.current = blocksRef.current.filter((block) => block.id !== id);
+    graphRef.current!.getCell(id)?.remove();
+  };
+  const select = (id: string) => {
+    const block = blocksRef.current.find((b) => b.id === id);
+    if (block) {
+      block.selected = true;
+      const cell = graphRef.current!.getCell(id);
+      if (cell) {
+        StylingHelper.synchronizeBlockStylingWithCell(block, cell);
+      }
+    }
+  };
+  const deselect = (id: string) => {
+    const block = blocksRef.current.find((b) => b.id === id);
+    if (block) {
+      block.selected = false;
+      const cell = graphRef.current!.getCell(id);
+      if (cell) {
+        StylingHelper.synchronizeBlockStylingWithCell(block, cell);
+      }
+    }
+  };
+
   // Initialize graph and paper (once)
   useEffect(() => {
     if (!element.current) return;
@@ -104,8 +152,8 @@ export function Canvas({ ref, mode, initialBlocks, onBlocksRelationChange, class
       paper,
       blocksRef,
       notifyBlocksChange,
-      activeBlockId,
-      setActiveBlockId,
+      select,
+      deselect,
     });
     setupLinkInteractions(graph, notifyBlocksChange);
     const cleanupPanning = setupPanning(paper);
@@ -150,41 +198,6 @@ export function Canvas({ ref, mode, initialBlocks, onBlocksRelationChange, class
   }, [mode]);
 
   // Expose the API
-  const format = () => {
-    blocksRef.current = Internal.performSmartPositioning(blocksRef.current, {
-      width: Number(paperRef.current!.options.width),
-      height: Number(paperRef.current!.options.height),
-    });
-    blocksRef.current.forEach((block) => {
-      const cell = graphRef.current!.getCell(block.id);
-      if (cell && block.coordinates) {
-        cell.set("position", { x: block.coordinates.x, y: block.coordinates.y });
-      }
-    });
-  };
-  const insert = (block: Block) => {
-    const newBlock: JointBlock = {
-      ...block,
-      coordinates: Internal.findOptimalNewSpot(blocksRef.current, {
-        width: Number(paperRef.current!.options.width),
-        height: Number(paperRef.current!.options.height),
-      }),
-    };
-    blocksRef.current.push(newBlock);
-    graphRef.current!.addCell(createCell(newBlock));
-  };
-  const remove = (id: string) => {
-    blocksRef.current = blocksRef.current.filter((block) => block.id !== id);
-    graphRef.current!.getCell(id)?.remove();
-  };
-  const select = (id: string) => {
-    blocksRef.current = blocksRef.current.map((b) => (b.id === id ? { ...b, selected: true } : b));
-    // TODO: how???
-  };
-  const deselect = (id: string) => {
-    blocksRef.current = blocksRef.current.map((b) => (b.id === id ? { ...b, selected: false } : b));
-    // TODO: how???
-  };
   useImperativeHandle(ref, () => {
     return {
       format,

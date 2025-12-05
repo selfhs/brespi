@@ -1,8 +1,8 @@
 import { dia, shapes } from "@joint/core";
 import { RefObject } from "react";
 import { Block } from "../Block";
-import { JointBlockWithProposedHandle } from "./helpers/JointBlockWithProposedHandle";
-import { JointBlock } from "./helpers/JointBlock";
+import { JointBlockWithProposedHandle } from "./types/JointBlockWithProposedHandle";
+import { JointBlock } from "./types/JointBlock";
 
 type Options = {
   element: HTMLElement;

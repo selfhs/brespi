@@ -1,18 +1,17 @@
 import { dia } from "@joint/core";
 import { RefObject } from "react";
 import { Block } from "../Block";
-import { getLighterColor, resetToDefaultColor } from "./colorHelpers";
 
 type Options = {
   paper: dia.Paper;
   graph: dia.Graph;
   blocksRef: RefObject<Block[]>;
   notifyBlocksChange: () => void;
-  activeBlockId: string | undefined;
-  setActiveBlockId: (id: string | undefined) => void;
+  select: (id: string) => void;
+  deselect: (id: string) => void;
 };
 
-export function setupBlockInteractions({ graph, paper, notifyBlocksChange, activeBlockId, setActiveBlockId }: Options) {
+export function setupBlockInteractions({ graph, paper, notifyBlocksChange, blocksRef, select, deselect }: Options) {
   // Handle block clicks (activate/highlight)
   paper.on("element:pointerclick", (elementView, evt) => {
     const clickedElement = elementView.model;
@@ -39,26 +38,17 @@ export function setupBlockInteractions({ graph, paper, notifyBlocksChange, activ
       return;
     }
 
-    // Check if clicking the already active block (deactivate)
-    if (elementId === activeBlockId) {
-      resetToDefaultColor(clickedElement);
-      setActiveBlockId(undefined);
-      console.log("Deactivated block:", elementId);
+    // Check if clicking an already selected block (deselect)
+    const clickedBlock = blocksRef.current!.find((b) => b.id === elementId);
+    if (clickedBlock?.selected) {
+      deselect(elementId);
+      console.log("Deselected block:", elementId);
       return;
     }
 
-    // Reset all blocks to default colors
-    graph.getElements().forEach((el) => {
-      resetToDefaultColor(el);
-    });
-
-    // Highlight clicked block
-    const currentFill = clickedElement.attr("body/fill") as string;
-    const lighterFill = getLighterColor(currentFill);
-    clickedElement.attr("body/fill", lighterFill);
-
-    setActiveBlockId(elementId);
-    console.log("Active block:", {
+    // Select the clicked block (automatically deselects others)
+    select(elementId);
+    console.log("Selected block:", {
       id: elementId,
       type: clickedElement.attr("label/text"),
     });
