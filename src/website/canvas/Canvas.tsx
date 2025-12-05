@@ -2,6 +2,7 @@ import { dia } from "@joint/core";
 import { ReactElement, RefObject, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Block } from "./Block";
 import { CanvasEvent } from "./CanvasEvent";
+import { Interactivity } from "./Interactivity";
 import { createCell } from "./jointframework/createCell";
 import { createPaper } from "./jointframework/createPaper";
 import { PositioningHelper } from "./jointframework/helpers/PositioningHelper";
@@ -11,7 +12,6 @@ import { setupLinkInteractions } from "./jointframework/setupLinkInteractions";
 import { setupPanning } from "./jointframework/setupPanning";
 import { Dimensions } from "./jointframework/types/Dimensions";
 import { JointBlock } from "./jointframework/types/JointBlock";
-import { Interactivity } from "./Interactivity";
 
 /**
  * One-way databinding is strongly discouraged for the Canvas editor for performance reasons.
@@ -24,7 +24,6 @@ type Props = {
   onBlocksChange?: (event: CanvasEvent, blocks: Block[]) => void;
   className?: string;
 };
-
 export function Canvas({ ref, interactivity, initialBlocks, onBlocksChange = (_, __) => {}, className }: Props): ReactElement {
   const element = useRef<HTMLDivElement>(null);
   const [initiallyDrawn, setInitiallyDrawn] = useState(false);
