@@ -64,8 +64,8 @@ const detailLabels: DetailLabels = {
     secretKeyReference: "Secret key reference",
     baseFolder: "Base folder",
     artifact: "Artifact",
-    "selection.target": "Selection Target",
-    "selection.version": "Selection Version",
+    "selection.target": "Selection target",
+    "selection.version": "Selection version",
   },
   [Step.Type.postgres_backup]: {
     "databases.selection": "Selection",
