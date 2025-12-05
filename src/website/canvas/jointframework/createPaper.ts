@@ -9,10 +9,9 @@ type Options = {
   element: HTMLElement;
   blocksRef: RefObject<JointBlock[]>;
   validateArrow: (source: JointBlockWithProposedHandle, target: JointBlockWithProposedHandle) => boolean;
-  initialBlocks: JointBlock[];
 };
 
-export function createPaper({ element, blocksRef, validateArrow, initialBlocks }: Options) {
+export function createPaper({ element, blocksRef, validateArrow }: Options) {
   const namespace = { ...shapes };
   const graph = new dia.Graph({}, { cellNamespace: namespace });
 
@@ -70,6 +69,7 @@ export function createPaper({ element, blocksRef, validateArrow, initialBlocks }
     },
   });
 
+  const initialBlocks = blocksRef.current;
   const cells = initialBlocks.map(createCell);
   graph.addCells(cells);
 

@@ -16,11 +16,11 @@ type Props = {
   ref: RefObject<Canvas.Api | null>;
   mode: "viewing" | "editing";
   initialBlocks: Block[];
-  onBlocksChange: (blocks: Block[]) => void;
+  onBlocksRelationChange: (blocks: Block[]) => void;
   className?: string;
 };
 
-export function Canvas({ ref, mode, initialBlocks, onBlocksChange, className }: Props): ReactElement {
+export function Canvas({ ref, mode, initialBlocks, onBlocksRelationChange, className }: Props): ReactElement {
   const element = useRef<HTMLDivElement>(null);
   const [paper, setPaper] = useState<dia.Paper>();
   const [activeBlockId, setActiveBlockId] = useState<string>();
@@ -51,7 +51,7 @@ export function Canvas({ ref, mode, initialBlocks, onBlocksChange, className }: 
       };
     });
     blocksRef.current = updatedBlocks;
-    onBlocksChange(Internal.stripCoords(updatedBlocks));
+    onBlocksRelationChange(Internal.stripCoords(updatedBlocks));
   };
 
   // Function which determines whether an arrow is allowed to be drawn
@@ -84,7 +84,6 @@ export function Canvas({ ref, mode, initialBlocks, onBlocksChange, className }: 
       element: element.current,
       blocksRef,
       validateArrow,
-      initialBlocks: blocksRef.current,
     });
 
     const notifyBlocksChangeWithGraph = () => notifyBlocksChange(graph);
@@ -139,6 +138,12 @@ export function Canvas({ ref, mode, initialBlocks, onBlocksChange, className }: 
       format: () => {
         console.log("~formatting~");
       },
+      createBlock: (block: Block) => {
+        console.log(`Adding: ${block}`);
+      },
+      deleteBlock: (id: string) => {
+        console.log(`Deleting ${id}`);
+      },
     };
   });
 
@@ -148,6 +153,8 @@ export function Canvas({ ref, mode, initialBlocks, onBlocksChange, className }: 
 export namespace Canvas {
   export type Api = {
     format: () => void;
+    createBlock: (block: Omit<Block, "incomingId">) => void;
+    deleteBlock: (id: string) => void;
   };
 }
 

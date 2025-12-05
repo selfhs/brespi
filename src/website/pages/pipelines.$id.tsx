@@ -107,7 +107,7 @@ export function pipelines_$id() {
   /**
    * Handle arrow relation updates
    */
-  const handleCanvasChange = (blocks: Block[]) => {
+  const handleBlocksRelationChange = (blocks: Block[]) => {
     mainForm.setValue(
       "steps",
       mainForm.getValues("steps").map((step) => {
@@ -186,7 +186,7 @@ export function pipelines_$id() {
                   ref={canvas}
                   mode={mode}
                   initialBlocks={query.data === "new" ? [] : query.data.blocks}
-                  onBlocksChange={handleCanvasChange}
+                  onBlocksRelationChange={handleBlocksRelationChange}
                 />
               </div>
             </div>
