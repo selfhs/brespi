@@ -83,6 +83,7 @@ export function pipelines_$id() {
     canvas.current?.insert({
       id,
       label: "NEW",
+      details: {},
       handles: Internal.convertTypeToHandles(type),
       selected: true,
     });
@@ -198,7 +199,7 @@ export function pipelines_$id() {
             {/* CANVAS */}
             <div className="col-span-full px-6">
               <div
-                className={clsx("h-[400px] rounded-lg overflow-hidden", {
+                className={clsx("h-[500px] rounded-lg overflow-hidden", {
                   "bg-white": interactivity === Interactivity.viewing,
                   "bg-white/90": interactivity === Interactivity.editing,
                 })}
@@ -303,6 +304,14 @@ namespace Internal {
           id: step.id,
           incomingId: step.previousStepId,
           label: typeLabels[step.type],
+          details: {
+            appel: "taartje",
+            kopje: "thee",
+            aantal: 34,
+            lekker: true,
+            waarom: "daarom",
+            nogIets: undefined,
+          },
           handles: convertTypeToHandles(step.type),
           selected: false,
         };

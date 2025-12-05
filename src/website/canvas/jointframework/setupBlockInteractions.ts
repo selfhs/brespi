@@ -23,7 +23,6 @@ export function setupBlockInteractions({ graph, paper, interactivityRef, blocksR
 
     if (portElement) {
       const portName = portElement.getAttribute("port");
-      console.log("Clicked on port:", portName);
 
       // If clicking on input port, delete incoming link (only in editing mode)
       if (portName === "input" && interactivityRef.current === Interactivity.editing) {
@@ -40,15 +39,10 @@ export function setupBlockInteractions({ graph, paper, interactivityRef, blocksR
     const clickedBlock = blocksRef.current!.find((b) => b.id === elementId);
     if (clickedBlock?.selected) {
       deselect(elementId);
-      console.log("Deselected block:", elementId);
       return;
     }
 
     // Select the clicked block (automatically deselects others)
     select(elementId);
-    console.log("Selected block:", {
-      id: elementId,
-      type: clickedElement.attr("label/text"),
-    });
   });
 }

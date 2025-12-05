@@ -2,8 +2,12 @@ import { dia, shapes } from "@joint/core";
 import { Block } from "../Block";
 import { JointBlock } from "./types/JointBlock";
 import { StylingHelper } from "./helpers/StylingHelper";
+import { renderToString } from "react-dom/server";
+import clsx from "clsx";
 
 export function createCell(block: JointBlock) {
+  console.log(block.details);
+
   const items: dia.Element.Port[] = [];
   const groups: Record<string, dia.Element.PortGroup> = {};
 
@@ -64,8 +68,7 @@ export function createCell(block: JointBlock) {
       markup: [
         { tagName: "rect", selector: "body" },
         { tagName: "text", selector: "label" },
-        { tagName: "rect", selector: "calloutBody" },
-        { tagName: "text", selector: "calloutText" },
+        { tagName: "foreignObject", selector: "callout" },
       ],
       attrs: {
         body: {
@@ -84,28 +87,36 @@ export function createCell(block: JointBlock) {
           y: "calc(h+18)", // Below block
           textAnchor: "middle",
         },
-        calloutBody: {
+        callout: {
           display: "none", // Hidden by default
           x: "calc(0.5*w-100)",
-          y: "calc(h+10)", // 60 (block height) + 18 (label space)
+          y: "calc(h+10)", // Below label with spacing
           width: 200,
-          height: 80,
-          class: "fill-c-dark stroke-c-info text-white",
-          strokeWidth: 3,
-          rx: 6,
-          ry: 6,
-          text: "lorem ipsum dolor sit amet",
+          height: 1, // Will grow based on content
+          style: {
+            overflow: "visible",
+          },
+          html: renderToString(
+            <div className="flex flex-col gap-3 border-3 border-c-info rounded-lg bg-c-dark p-2">
+              <h1 className="font-light text-lg text-c-dim">{block.label}</h1>
+              {Object.entries(block.details).map(([key, value]) => (
+                <div key={key} className="text-sm flex flex-col">
+                  <strong className="pb-1">{key}</strong>
+                  <code
+                    className={clsx("p-1", {
+                      "bg-c-dim/20 rounded": value !== undefined,
+                      "text-c-info": typeof value === "number",
+                      "text-c-success": typeof value === "boolean" && value,
+                      "text-c-error": typeof value === "boolean" && !value,
+                    })}
+                  >
+                    {typeof value === "boolean" ? (value ? "Yes" : "No") : value === undefined ? "—" : value}
+                  </code>
+                </div>
+              ))}
+            </div>,
+          ),
         },
-        // calloutText: {
-        //   display: "none", // Hidden by default
-        //   text: "",
-        //   x: 8,
-        //   y: 86, // 78 + 8 (padding)
-        //   class: "fill-c-dark",
-        //   fontSize: 12,
-        //   textAnchor: "start",
-        //   textVerticalAnchor: "top",
-        // },
       },
       ports: {
         groups,

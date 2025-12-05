@@ -12,6 +12,7 @@ import { setupLinkInteractions } from "./jointframework/setupLinkInteractions";
 import { setupPanning } from "./jointframework/setupPanning";
 import { Dimensions } from "./jointframework/types/Dimensions";
 import { JointBlock } from "./jointframework/types/JointBlock";
+import { renderToString } from "react-dom/server";
 
 /**
  * One-way databinding is strongly discouraged for the Canvas editor for performance reasons.
@@ -65,31 +66,20 @@ export function Canvas({ ref, interactivity, initialBlocks, onBlocksChange = (_,
     );
   };
 
-  const createCallout = (blockId: string, text: string) => {
-    const blockCell = graphRef.current!.getCell(blockId) as dia.Element;
-    if (!blockCell) return null;
-
-    // Hide the original label
-    blockCell.attr("label/display", "none");
-
-    // Show and populate the callout
-    blockCell.attr("calloutBody/display", "block");
-    // blockCell.attr("calloutText/display", "block");
-    // blockCell.attr("calloutText/text", text);
-
-    return blockId;
+  const showBlockDetails = (id: string) => {
+    const cell = graphRef.current!.getCell(id);
+    if (cell) {
+      cell.attr("label/display", "none");
+      cell.attr("callout/display", "block");
+    }
   };
 
-  const removeCallout = (blockId: string) => {
-    const blockCell = graphRef.current!.getCell(blockId) as dia.Element;
-    if (!blockCell) return;
-
-    // Hide callout
-    blockCell.attr("calloutBody/display", "none");
-    blockCell.attr("calloutText/display", "none");
-
-    // Show the original label again
-    blockCell.attr("label/display", "block");
+  const hideBlockDetails = (id: string) => {
+    const cell = graphRef.current!.getCell(id);
+    if (cell) {
+      cell.attr("callout/display", "none");
+      cell.attr("label/display", "block");
+    }
   };
 
   const performInitialDraw = () => {
@@ -99,12 +89,6 @@ export function Canvas({ ref, interactivity, initialBlocks, onBlocksChange = (_,
     };
     blocksRef.current = PositioningHelper.performSmartPositioning(initialBlocks, dimensions);
     graphRef.current!.addCells(blocksRef.current.map(createCell));
-
-    // Add a popover beneath the first block
-    const secondBlock = blocksRef.current[1];
-    if (secondBlock) {
-      createCallout(secondBlock.id, "This is a callout with details about the block. You can add any information here.");
-    }
   };
 
   const api: Canvas.Api = {
@@ -141,13 +125,19 @@ export function Canvas({ ref, interactivity, initialBlocks, onBlocksChange = (_,
       }
     },
     select(id: string) {
-      const block = blocksRef.current.find((b) => b.id === id);
-      if (block) {
-        blocksRef.current.forEach((b) => {
-          b.selected = b.id === id ? true : false;
-          const cell = graphRef.current!.getCell(b.id);
+      const exists = blocksRef.current.some((block) => block.id === id);
+      if (exists) {
+        blocksRef.current.forEach((block) => {
+          if (block.id === id) {
+            block.selected = true;
+            showBlockDetails(id);
+          } else {
+            block.selected = false;
+            hideBlockDetails(id);
+          }
+          const cell = graphRef.current!.getCell(block.id);
           if (cell) {
-            StylingHelper.synchronizeBlockStylingWithCell(b, cell);
+            StylingHelper.synchronizeBlockStylingWithCell(block, cell);
           }
         });
         notifyBlocksChange("select");
@@ -157,6 +147,7 @@ export function Canvas({ ref, interactivity, initialBlocks, onBlocksChange = (_,
       const block = blocksRef.current.find((b) => b.id === id);
       if (block) {
         block.selected = false;
+        hideBlockDetails(id);
         const cell = graphRef.current!.getCell(id);
         if (cell) {
           StylingHelper.synchronizeBlockStylingWithCell(block, cell);
