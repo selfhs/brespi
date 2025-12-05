@@ -133,7 +133,7 @@ export function Canvas({ ref, interactivity, initialBlocks, onBlocksChange = (_,
             showBlockDetails(id);
           } else {
             block.selected = false;
-            hideBlockDetails(id);
+            hideBlockDetails(block.id); // ← FIX: Use block.id, not id
           }
           const cell = graphRef.current!.getCell(block.id);
           if (cell) {
