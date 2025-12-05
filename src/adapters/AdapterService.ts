@@ -1,7 +1,7 @@
 import { Artifact } from "@/models/Artifact";
 import { Step } from "@/models/Step";
 import { CompressionAdapter } from "./compression/CompressionAdapter";
-import { FileSystemAdapter } from "./filesystem/LalaAdapter";
+import { FilesystemAdapter } from "./filesystem/FilesystemAdapter";
 import { PostgresAdapter } from "./postgres/PostgresAdapter";
 import { EncryptionAdapter } from "./encyption/EncryptionAdapter";
 import { S3Adapter } from "./s3/S3Adapter";
@@ -18,7 +18,7 @@ export class AdapterService {
 
   public constructor(
     compressionAdapter: CompressionAdapter,
-    fileSystemAdapter: FileSystemAdapter,
+    fileSystemAdapter: FilesystemAdapter,
     encryptionAdapter: EncryptionAdapter,
     scriptAdapter: ScriptAdapter,
     s3Adapter: S3Adapter,

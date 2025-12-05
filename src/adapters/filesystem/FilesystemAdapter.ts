@@ -5,7 +5,7 @@ import { Temporal } from "@js-temporal/polyfill";
 import { copyFile, mkdir, readdir, stat } from "fs/promises";
 import { basename, join } from "path";
 
-export class FileSystemAdapter {
+export class FilesystemAdapter {
   /**
    * Read file(s) from filesystem and convert to artifacts
    */

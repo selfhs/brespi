@@ -2,7 +2,7 @@ import { Class } from "@/types/Class";
 import { Server } from "./Server";
 import { AdapterService } from "./adapters/AdapterService";
 import { CompressionAdapter } from "./adapters/compression/CompressionAdapter";
-import { FileSystemAdapter } from "./adapters/filesystem/LalaAdapter";
+import { FilesystemAdapter } from "./adapters/filesystem/FilesystemAdapter";
 import { PostgresAdapter } from "./adapters/postgres/PostgresAdapter";
 import { PipelineService } from "./services/PipelineService";
 import { CleanupService } from "./services/CleanupService";
@@ -20,7 +20,7 @@ export class ServerRegistry {
   private constructor() {
     // Adapters
     const compressionAdapter = (this.registry[CompressionAdapter.name] = new CompressionAdapter());
-    const fileSystemAdapter = (this.registry[FileSystemAdapter.name] = new FileSystemAdapter());
+    const fileSystemAdapter = (this.registry[FilesystemAdapter.name] = new FilesystemAdapter());
     const encryptionAdapter = (this.registry[EncryptionAdapter.name] = new EncryptionAdapter());
     const scriptAdapter = (this.registry[ScriptAdapter.name] = new ScriptAdapter());
     const s3Adapter = (this.registry[S3Adapter.name] = new S3Adapter());
