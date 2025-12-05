@@ -47,108 +47,129 @@ export function pipelines_$id() {
     },
   });
 
-  const [detailForm, setDetailForm] = useState<{ id: string; type: Step.Type; existingStep?: Step }>();
-  const mainForm = useForm<Form>();
+  /**
+   * Refs
+   */
+  const canvasApi = useRef<Canvas.Api>(null);
 
-  const now = useMemo(() => Temporal.Now.plainDateTimeISO(), []);
-  const reset = (initial: "new" | Internal.PipelineWithInitialBlocks) => {
-    if (initial === "new") {
-      mainForm.reset({
-        interactivity: Interactivity.editing,
-        name: `My New Pipeline (${now.toLocaleString()})`,
-        steps: [],
-      });
-    } else {
-      mainForm.reset({
-        interactivity: Interactivity.viewing,
-        name: initial.name,
-        steps: initial.steps,
-      });
-    }
-  };
-  const cancel = () => {
-    if (query.data === "new") {
-      navigate("/pipelines");
-    } else {
-      console.log("TODO: undo form changes");
+  /**
+   * Forms
+   */
+  const mainForm = useForm<Form>();
+  const [stepForm, setStepForm] = useState<{ id: string; type: Step.Type; existingStep?: Step }>();
+
+  /**
+   * Main form API
+   */
+  const mainApi = {
+    save() {
+      console.log("TODO: save updated pipeline");
       mainForm.setValue("interactivity", Interactivity.viewing);
-    }
-  };
-  const save = () => {
-    console.log("TODO: save updated pipeline");
-    mainForm.setValue("interactivity", Interactivity.viewing);
-  };
-  const showDetailForm = (type: Step.Type, existingStep?: Step) => {
-    const id = existingStep?.id ?? `${Math.random()}`; // TODO!!!
-    setDetailForm({ id, type, existingStep });
-    canvas.current?.insert({
-      id,
-      label: "NEW",
-      details: {},
-      handles: Internal.convertTypeToHandles(type),
-      selected: true,
-    });
+    },
+    cancel() {
+      if (query.data === "new") {
+        navigate("/pipelines");
+      } else {
+        console.log("TODO: undo form changes");
+        mainForm.setValue("interactivity", Interactivity.viewing);
+      }
+    },
+    reset(initial: "new" | Internal.PipelineWithInitialBlocks) {
+      if (initial === "new") {
+        mainForm.reset({
+          interactivity: Interactivity.editing,
+          name: `My New Pipeline (${Temporal.Now.plainTimeISO().toLocaleString()})`,
+          steps: [],
+        });
+      } else {
+        mainForm.reset({
+          interactivity: Interactivity.viewing,
+          name: initial.name,
+          steps: initial.steps,
+        });
+      }
+    },
   };
 
   /**
-   * Initialze the form
+   * Step form API
+   */
+  const stepApi = {
+    showForm(type: Step.Type, existingStep?: Step) {
+      const id = existingStep?.id ?? `${Math.random()}`; // TODO!!!
+      setStepForm({ id, type, existingStep });
+      canvasApi.current?.insert({
+        id,
+        label: "NEW",
+        details: {},
+        handles: Internal.convertTypeToHandles(type),
+        selected: true,
+      });
+    },
+    upsert(step: Step) {
+      const steps = mainForm.getValues("steps");
+      const existingStep: boolean = steps.some((s) => s.id === step.id);
+      if (existingStep) {
+        mainForm.setValue(
+          "steps",
+          steps.map((s) => (s.id === step.id ? step : s)),
+        );
+      } else {
+        mainForm.setValue("steps", [...steps, step]);
+      }
+      setStepForm(undefined);
+    },
+    cancelForm() {
+      setStepForm((sf) => {
+        if (sf) {
+          const didNewStepGetTemporarilyAdded = !sf.existingStep;
+          if (didNewStepGetTemporarilyAdded) {
+            canvasApi.current?.remove(sf.id);
+          }
+        }
+        return undefined;
+      });
+    },
+  };
+
+  /**
+   * Handle arrow relation updates
+   */
+  const canvasListener = {
+    handleBlocksChange(event: CanvasEvent, blocks: Block[]) {
+      if (event === CanvasEvent.relation) {
+        mainForm.setValue(
+          "steps",
+          mainForm.getValues("steps").map((step) => {
+            const block = blocks.find((b) => b.id === step.id);
+            if (block) {
+              return {
+                ...step,
+                previousStepId: block.incomingId,
+              };
+            }
+            throw new Error(`Block not found: ${step.id}`);
+          }),
+        );
+      }
+      if (event === CanvasEvent.select) {
+      }
+    },
+  };
+
+  /**
+   * Initialze (reset) the main form
    */
   useEffect(() => {
     if (query.data) {
-      reset(query.data);
+      mainApi.reset(query.data);
     }
   }, [query.data, mainForm]);
 
   /**
-   * Handle new or updated steps
+   * Render
    */
-  const handleStepUpdate = (step: Step) => {
-    const steps = mainForm.getValues("steps");
-    const existingStep: boolean = steps.some((s) => s.id === step.id);
-    if (existingStep) {
-      mainForm.setValue(
-        "steps",
-        steps.map((s) => (s.id === step.id ? step : s)),
-      );
-    } else {
-      mainForm.setValue("steps", [...steps, step]);
-    }
-    setDetailForm(undefined);
-  };
-  const handleStepCancel = () => {
-    setDetailForm((df) => {
-      if (df) {
-        const didNewStepGetTemporarilyAdded = !df.existingStep;
-        if (didNewStepGetTemporarilyAdded) {
-          canvas.current?.remove(df.id);
-        }
-      }
-      return undefined;
-    });
-  };
-  /**
-   * Handle arrow relation updates
-   */
-  const handleBlocksChange = (event: CanvasEvent, blocks: Block[]) => {
-    console.log(event, blocks);
-    mainForm.setValue(
-      "steps",
-      mainForm.getValues("steps").map((step) => {
-        const block = blocks.find((b) => b.id === step.id);
-        if (!block) {
-          throw new Error(`Block not found ???`);
-        }
-        return {
-          ...step,
-          previousStepId: block.incomingId,
-        };
-      }),
-    );
-  };
-
-  const canvas = useRef<Canvas.Api>(null);
   const { interactivity, name } = mainForm.watch();
-
   const buttonGroups = useMemo(() => Internal.getButtonGroups(), []);
   return (
     <Skeleton>
@@ -187,10 +208,10 @@ export function pipelines_$id() {
                   </>
                 ) : (
                   <>
-                    <Button onClick={cancel} className="border-c-primary/80 bg-c-primary/80 text-c-dark hover:bg-c-primary">
+                    <Button onClick={mainApi.cancel} className="border-c-primary/80 bg-c-primary/80 text-c-dark hover:bg-c-primary">
                       Cancel
                     </Button>
-                    <Button onClick={save} className="border-c-success/80 bg-c-success/80 text-c-dark hover:bg-c-success">
+                    <Button onClick={mainApi.save} className="border-c-success/80 bg-c-success/80 text-c-dark hover:bg-c-success">
                       Save
                     </Button>
                   </>
@@ -206,10 +227,10 @@ export function pipelines_$id() {
                 })}
               >
                 <Canvas
-                  ref={canvas}
+                  ref={canvasApi}
                   interactivity={interactivity}
                   initialBlocks={query.data === "new" ? [] : query.data.initialBlocks}
-                  onBlocksChange={handleBlocksChange}
+                  onBlocksChange={canvasListener.handleBlocksChange}
                 />
               </div>
             </div>
@@ -238,7 +259,7 @@ export function pipelines_$id() {
                   </div>
                 )}
               </>
-            ) : detailForm === undefined ? (
+            ) : stepForm === undefined ? (
               <>
                 {buttonGroups.map((bg) => (
                   <div key={bg.category} className="col-span-4 px-6 pt-10 pb-20 pr-3 flex flex-col">
@@ -257,11 +278,11 @@ export function pipelines_$id() {
             ) : (
               <StepForm
                 className="col-span-full p-6"
-                id={detailForm.id}
-                type={detailForm.type}
-                existing={detailForm.existingStep}
-                onCancel={handleStepCancel}
-                onSubmit={handleStepUpdate}
+                id={stepForm.id}
+                type={stepForm.type}
+                existing={stepForm.existingStep}
+                onCancel={stepApi.cancelForm}
+                onSubmit={stepApi.upsert}
               />
             )}
           </>
