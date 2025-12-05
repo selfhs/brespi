@@ -5,20 +5,20 @@ import { JointBlockWithProposedHandle } from "./types/JointBlockWithProposedHand
 import { JointBlock } from "./types/JointBlock";
 
 type Options = {
-  element: HTMLElement;
+  elementRef: RefObject<HTMLElement | null>;
   blocksRef: RefObject<JointBlock[]>;
   validateArrow: (source: JointBlockWithProposedHandle, target: JointBlockWithProposedHandle) => boolean;
 };
 
-export function createPaper({ element, blocksRef, validateArrow }: Options) {
+export function createPaper({ elementRef, blocksRef, validateArrow }: Options) {
   const namespace = { ...shapes };
   const graph = new dia.Graph({}, { cellNamespace: namespace });
 
   const paper = new dia.Paper({
-    el: element,
+    el: elementRef.current!,
     model: graph,
-    width: element.clientWidth || 10,
-    height: element.clientHeight || 10,
+    width: 10, // updated dynamically
+    height: 10, // updated dynamically
     background: { color: "transparent" },
     cellViewNamespace: namespace,
     gridSize: 1, // Free-form movement (no snapping)

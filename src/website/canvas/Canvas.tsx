@@ -1,4 +1,4 @@
-import { dia } from "@joint/core";
+import { dia, shapes } from "@joint/core";
 import { ReactElement, RefObject, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Block } from "./Block";
 import { CanvasEvent } from "./CanvasEvent";
@@ -25,13 +25,14 @@ type Props = {
   className?: string;
 };
 export function Canvas({ ref, interactivity, initialBlocks, onBlocksChange = (_, __) => {}, className }: Props): ReactElement {
-  const element = useRef<HTMLDivElement>(null);
-  const [initiallyDrawn, setInitiallyDrawn] = useState(false);
-
+  // Refs
+  const elementRef = useRef<HTMLDivElement>(null);
   const graphRef = useRef<dia.Graph>(null);
   const paperRef = useRef<dia.Paper>(null);
   const blocksRef = useRef<JointBlock[]>([]);
   const interactivityRef = useRef<Interactivity>(interactivity);
+  // State
+  const [initiallyDrawn, setInitiallyDrawn] = useState(false);
 
   const notifyBlocksChange = (event: CanvasEvent) => {
     const graph = graphRef.current!;
@@ -60,17 +61,50 @@ export function Canvas({ ref, interactivity, initialBlocks, onBlocksChange = (_,
 
     onBlocksChange(
       event,
-      updatedBlocks.map(({ coordinates: _, ...block }) => block),
+      updatedBlocks.map(({ coordinates, ...block }) => block), // strip coordinates
     );
   };
 
-  const initialDraw = () => {
+  const createCallout = (blockId: string, text: string) => {
+    const blockCell = graphRef.current!.getCell(blockId) as dia.Element;
+    if (!blockCell) return null;
+
+    // Hide the original label
+    blockCell.attr("label/display", "none");
+
+    // Show and populate the callout
+    blockCell.attr("calloutBody/display", "block");
+    // blockCell.attr("calloutText/display", "block");
+    // blockCell.attr("calloutText/text", text);
+
+    return blockId;
+  };
+
+  const removeCallout = (blockId: string) => {
+    const blockCell = graphRef.current!.getCell(blockId) as dia.Element;
+    if (!blockCell) return;
+
+    // Hide callout
+    blockCell.attr("calloutBody/display", "none");
+    blockCell.attr("calloutText/display", "none");
+
+    // Show the original label again
+    blockCell.attr("label/display", "block");
+  };
+
+  const performInitialDraw = () => {
     const dimensions: Dimensions = {
       width: Number(paperRef.current!.options.width),
       height: Number(paperRef.current!.options.height),
     };
     blocksRef.current = PositioningHelper.performSmartPositioning(initialBlocks, dimensions);
     graphRef.current!.addCells(blocksRef.current.map(createCell));
+
+    // Add a popover beneath the first block
+    const secondBlock = blocksRef.current[1];
+    if (secondBlock) {
+      createCallout(secondBlock.id, "This is a callout with details about the block. You can add any information here.");
+    }
   };
 
   const api: Canvas.Api = {
@@ -135,10 +169,10 @@ export function Canvas({ ref, interactivity, initialBlocks, onBlocksChange = (_,
 
   // Initialize graph and paper (once)
   useEffect(() => {
-    if (!element.current) return;
+    if (!elementRef.current) return;
 
     const { graph, paper } = createPaper({
-      element: element.current,
+      elementRef,
       blocksRef,
       validateArrow: (source, target) => {
         if (source.id === target.id) {
@@ -160,20 +194,20 @@ export function Canvas({ ref, interactivity, initialBlocks, onBlocksChange = (_,
     setupLinkInteractions({ graph, notifyBlocksChange });
     const panning = setupPanning({ paperRef });
 
-    // Setup ResizeObserver to make canvas responsive
+    // Setup a ResizeObserver to make the canvas dimensions responsive
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const { width, height } = entry.contentRect;
         paper.setDimensions(width, height);
         setInitiallyDrawn((alreadyDrawn) => {
           if (!alreadyDrawn) {
-            initialDraw();
+            performInitialDraw();
           }
           return true;
         });
       }
     });
-    observer.observe(element.current.parentElement!);
+    observer.observe(elementRef.current.parentElement!);
 
     return () => {
       panning.cleanup();
@@ -201,7 +235,7 @@ export function Canvas({ ref, interactivity, initialBlocks, onBlocksChange = (_,
     }
   }, [interactivity]);
 
-  return <div ref={element} className={className} />;
+  return <div ref={elementRef} className={className} />;
 }
 
 export namespace Canvas {

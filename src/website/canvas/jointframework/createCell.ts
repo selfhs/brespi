@@ -64,6 +64,8 @@ export function createCell(block: JointBlock) {
       markup: [
         { tagName: "rect", selector: "body" },
         { tagName: "text", selector: "label" },
+        { tagName: "rect", selector: "calloutBody" },
+        { tagName: "text", selector: "calloutText" },
       ],
       attrs: {
         body: {
@@ -82,6 +84,28 @@ export function createCell(block: JointBlock) {
           y: "calc(h+18)", // Below block
           textAnchor: "middle",
         },
+        calloutBody: {
+          display: "none", // Hidden by default
+          x: "calc(0.5*w-100)",
+          y: "calc(h+10)", // 60 (block height) + 18 (label space)
+          width: 200,
+          height: 80,
+          class: "fill-c-dark stroke-c-info text-white",
+          strokeWidth: 3,
+          rx: 6,
+          ry: 6,
+          text: "lorem ipsum dolor sit amet",
+        },
+        // calloutText: {
+        //   display: "none", // Hidden by default
+        //   text: "",
+        //   x: 8,
+        //   y: 86, // 78 + 8 (padding)
+        //   class: "fill-c-dark",
+        //   fontSize: 12,
+        //   textAnchor: "start",
+        //   textVerticalAnchor: "top",
+        // },
       },
       ports: {
         groups,
