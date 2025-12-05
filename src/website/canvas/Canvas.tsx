@@ -134,7 +134,9 @@ export function Canvas({ ref, interactivity, initialBlocks, onBlocksChange = (_,
           if (cell) {
             StylingHelper.synchronizeBlockStylingWithCell(block, cell);
             if (block.id === id) {
-              internal.showBlockDetails(cell);
+              if (interactivityRef.current === Interactivity.viewing) {
+                internal.showBlockDetails(cell);
+              }
             } else {
               internal.hideBlockDetails(cell);
             }
@@ -222,17 +224,22 @@ export function Canvas({ ref, interactivity, initialBlocks, onBlocksChange = (_,
   useEffect(() => {
     interactivityRef.current = interactivity;
     if (paperRef.current) {
-      const options: dia.CellView.InteractivityOptions =
-        interactivity === Interactivity.editing
-          ? {
-              elementMove: true,
-              addLinkFromMagnet: true,
-              stopDelegation: false, // Allow event delegation for magnets
-            }
-          : {
-              elementMove: true, // Allow moving in read mode
-              addLinkFromMagnet: false, // But no link creation
-            };
+      let options: dia.CellView.InteractivityOptions;
+      if (interactivity === Interactivity.viewing) {
+        options = {
+          elementMove: true, // Allow moving in read mode
+          addLinkFromMagnet: false, // But no link creation
+        };
+      } else {
+        options = {
+          elementMove: true,
+          addLinkFromMagnet: true,
+          stopDelegation: false, // Allow event delegation for magnets
+        };
+        blocksRef.current.forEach((block) => {
+          api.deselect(block.id);
+        });
+      }
       paperRef.current.setInteractivity(options);
     }
   }, [interactivity]);

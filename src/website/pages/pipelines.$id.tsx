@@ -106,6 +106,19 @@ export function pipelines_$id() {
         selected: true,
       });
     },
+    cancelForm() {
+      setStepForm((stepForm) => {
+        if (stepForm) {
+          const didNewStepGetTemporarilyAdded = !stepForm.existingStep;
+          if (didNewStepGetTemporarilyAdded) {
+            canvasApi.current!.remove(stepForm.id);
+          } else {
+            canvasApi.current!.deselect(stepForm.id);
+          }
+        }
+        return undefined;
+      });
+    },
     upsert(step: Step) {
       const steps = mainForm.getValues("steps");
       const existingStep: boolean = steps.some((s) => s.id === step.id);
@@ -117,15 +130,9 @@ export function pipelines_$id() {
       } else {
         mainForm.setValue("steps", [...steps, step]);
       }
-      setStepForm(undefined);
-    },
-    cancelForm() {
-      setStepForm((sf) => {
-        if (sf) {
-          const didNewStepGetTemporarilyAdded = !sf.existingStep;
-          if (didNewStepGetTemporarilyAdded) {
-            canvasApi.current?.remove(sf.id);
-          }
+      setStepForm((stepForm) => {
+        if (stepForm) {
+          canvasApi.current!.deselect(stepForm.id);
         }
         return undefined;
       });
@@ -137,6 +144,17 @@ export function pipelines_$id() {
    */
   const canvasListener = {
     handleBlocksChange(event: CanvasEvent, blocks: Block[]) {
+      // Click events
+      if (event === CanvasEvent.select) {
+        const selectedStep = mainForm.getValues("steps").find((step) => step.id === blocks.find((block) => block.selected)?.id);
+        if (selectedStep) {
+          stepApi.showForm(selectedStep.type, selectedStep);
+        }
+      }
+      if (event === CanvasEvent.deselect) {
+        stepApi.cancelForm();
+      }
+      // Relation events
       if (event === CanvasEvent.relation) {
         mainForm.setValue(
           "steps",
@@ -267,7 +285,7 @@ export function pipelines_$id() {
                     <div className="font-extralight text-c-dim mt-3">{bg.categoryLabel}</div>
                     <div className="flex flex-wrap gap-2 mt-6">
                       {bg.steps.map((step) => (
-                        <Button key={step.type} onClick={() => showDetailForm(step.type)} icon="new" className="border-c-info!">
+                        <Button key={step.type} onClick={() => stepApi.showForm(step.type)} icon="new" className="border-c-info!">
                           {step.typeLabel}
                         </Button>
                       ))}
