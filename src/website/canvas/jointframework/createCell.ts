@@ -6,7 +6,7 @@ export function createCell(block: JointBlock) {
   const items: dia.Element.Port[] = [];
   const groups: Record<string, dia.Element.PortGroup> = {};
 
-  // TODO: doesn't belong here
+  const selected = block.selected;
   const hasInput = block.handles.includes(Block.Handle.input);
   const hasOutput = block.handles.includes(Block.Handle.output);
 
@@ -15,6 +15,33 @@ export function createCell(block: JointBlock) {
     height: 16,
     borderRadius: 4,
     offset: 6,
+  };
+
+  const defaultClass = "fill-c-artifact-fill stroke-c-artifact-stroke";
+  const defaultUnusedClass = "fill-gray-300 stroke-c-dim";
+  const selectedClass = "fill-c-dark stroke-c-info";
+  const selectedUnusedClass = "fill-gray-300 stroke-c-info";
+
+  const className = {
+    main: selected ? selectedClass : defaultClass,
+    inputHandle: selected
+      ? //
+        hasInput
+        ? selectedClass
+        : selectedUnusedClass
+      : //
+        hasInput
+        ? defaultClass
+        : defaultUnusedClass,
+    outputHandle: selected
+      ? //
+        hasOutput
+        ? selectedClass
+        : selectedUnusedClass
+      : //
+        hasOutput
+        ? defaultClass
+        : defaultUnusedClass,
   };
 
   // Input side
@@ -30,7 +57,7 @@ export function createCell(block: JointBlock) {
         y: -(ioConnector.height / 2), // Center vertically
         rx: ioConnector.borderRadius,
         ry: ioConnector.borderRadius,
-        class: hasInput ? "fill-c-artifact-fill stroke-c-artifact-stroke" : "fill-gray-300 stroke-c-dim",
+        class: className.inputHandle,
         strokeWidth: 3,
         magnet: "passive",
       },
@@ -50,7 +77,7 @@ export function createCell(block: JointBlock) {
         y: -(ioConnector.height / 2), // Center vertically
         rx: ioConnector.borderRadius,
         ry: ioConnector.borderRadius,
-        class: hasOutput ? "fill-c-artifact-fill stroke-c-artifact-stroke" : "fill-gray-300 stroke-c-dim",
+        class: className.outputHandle,
         strokeWidth: 3,
         magnet: true,
       },
@@ -68,7 +95,7 @@ export function createCell(block: JointBlock) {
     ],
     attrs: {
       body: {
-        class: "fill-c-artifact-fill stroke-c-artifact-stroke",
+        class: className.main,
         strokeWidth: 3,
         rx: 8, // Rounded corners (scaled down)
         ry: 8,

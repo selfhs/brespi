@@ -3,6 +3,7 @@ export type Block = {
   incomingId?: string;
   label: string;
   handles: Block.Handle[];
+  selected: boolean;
 };
 
 export namespace Block {

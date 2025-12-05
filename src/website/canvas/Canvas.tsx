@@ -162,7 +162,7 @@ export function Canvas({ ref, mode, initialBlocks, onBlocksRelationChange, class
       }
     });
   };
-  const createBlock = (block: Block) => {
+  const insert = (block: Block) => {
     const newBlock: JointBlock = {
       ...block,
       coordinates: Internal.findOptimalNewSpot(blocksRef.current, {
@@ -173,15 +173,25 @@ export function Canvas({ ref, mode, initialBlocks, onBlocksRelationChange, class
     blocksRef.current.push(newBlock);
     graphRef.current!.addCell(createCell(newBlock));
   };
-  const deleteBlock = (id: string) => {
-    graphRef.current!.getCell(id)?.remove();
+  const remove = (id: string) => {
     blocksRef.current = blocksRef.current.filter((block) => block.id !== id);
+    graphRef.current!.getCell(id)?.remove();
+  };
+  const select = (id: string) => {
+    blocksRef.current = blocksRef.current.map((b) => (b.id === id ? { ...b, selected: true } : b));
+    // TODO: how???
+  };
+  const deselect = (id: string) => {
+    blocksRef.current = blocksRef.current.map((b) => (b.id === id ? { ...b, selected: false } : b));
+    // TODO: how???
   };
   useImperativeHandle(ref, () => {
     return {
       format,
-      createBlock,
-      deleteBlock,
+      insert,
+      remove,
+      select,
+      deselect,
     };
   });
 
@@ -191,8 +201,10 @@ export function Canvas({ ref, mode, initialBlocks, onBlocksRelationChange, class
 export namespace Canvas {
   export type Api = {
     format: () => void;
-    createBlock: (block: Omit<Block, "incomingId">) => void;
-    deleteBlock: (id: string) => void;
+    insert: (block: Omit<Block, "incomingId">) => void;
+    remove: (id: string) => void;
+    select: (id: string) => void;
+    deselect: (id: string) => void;
   };
 }
 

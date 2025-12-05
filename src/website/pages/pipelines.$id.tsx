@@ -34,13 +34,13 @@ export function pipelines_$id() {
   const navigate = useNavigate();
   const pipelineClient = useRegistry.instance(PipelineClient);
 
-  const query = useQuery<Logic.PipelineWithBlocks | "new", ProblemDetails>({
+  const query = useQuery<Internal.PipelineWithBlocks | "new", ProblemDetails>({
     queryKey: [QueryKey.pipelines, id],
     queryFn: () => {
       if (id === "new") {
         return "new";
       }
-      return pipelineClient.find(id!).then<Logic.PipelineWithBlocks>(Logic.convert);
+      return pipelineClient.find(id!).then<Internal.PipelineWithBlocks>(Internal.convert);
     },
   });
 
@@ -48,7 +48,7 @@ export function pipelines_$id() {
   const mainForm = useForm<Form>();
 
   const now = useMemo(() => Temporal.Now.plainDateTimeISO(), []);
-  const reset = (basis: Logic.PipelineWithBlocks | "new") => {
+  const reset = (basis: Internal.PipelineWithBlocks | "new") => {
     if (basis === "new") {
       mainForm.reset({
         mode: "editing",
@@ -76,12 +76,13 @@ export function pipelines_$id() {
     mainForm.setValue("mode", "viewing");
   };
   const showDetailForm = (type: Step.Type, existingStep?: Step) => {
-    const id = existingStep?.id ?? "lololol-smth-random-TODO";
+    const id = existingStep?.id ?? `${Math.random()}`; // TODO!!!
     setDetailForm({ id, type, existingStep });
-    canvas.current?.createBlock({
+    canvas.current?.insert({
       id,
       label: "NEW",
-      handles: [],
+      handles: Internal.convertTypeToHandles(type),
+      selected: true,
     });
   };
 
@@ -115,7 +116,7 @@ export function pipelines_$id() {
       if (df) {
         const didNewStepGetTemporarilyAdded = !df.existingStep;
         if (didNewStepGetTemporarilyAdded) {
-          canvas.current?.deleteBlock(df.id);
+          canvas.current?.remove(df.id);
         }
       }
       return undefined;
@@ -143,7 +144,7 @@ export function pipelines_$id() {
   const canvas = useRef<Canvas.Api>(null);
   const { mode, name } = mainForm.watch();
 
-  const buttonGroups = useMemo(() => Logic.getButtonGroups(), []);
+  const buttonGroups = useMemo(() => Internal.getButtonGroups(), []);
   return (
     <Skeleton>
       <Paper className="col-span-full u-subgrid">
@@ -212,7 +213,7 @@ export function pipelines_$id() {
               <>
                 <div className="col-span-6 p-6">
                   <h2 className="mb-6 text-xl font-extralight">Execution History</h2>
-                  {(query.data as Logic.PipelineWithBlocks).executions.map((execution) => (
+                  {(query.data as Internal.PipelineWithBlocks).executions.map((execution) => (
                     <button key={execution.id} className="mt-4 flex items-center text-left gap-4 group cursor-pointer">
                       <SquareIcon variant={execution.outcome} className="group-hover:border-white group-hover:bg-c-dim/20" />
                       <div>
@@ -223,9 +224,9 @@ export function pipelines_$id() {
                       </div>
                     </button>
                   ))}
-                  {(query.data as Logic.PipelineWithBlocks).executions.length === 0 && <SquareIcon variant="no_data" />}
+                  {(query.data as Internal.PipelineWithBlocks).executions.length === 0 && <SquareIcon variant="no_data" />}
                 </div>
-                {(query.data as Logic.PipelineWithBlocks).executions.length > 0 && (
+                {(query.data as Internal.PipelineWithBlocks).executions.length > 0 && (
                   <div className="col-span-6 p-6">
                     <h2 className="mb-6 text-xl font-extralight">Execution Details</h2>
                     <p className="text-c-dim font-extralight">Select an execution to see its details.</p>
@@ -265,7 +266,7 @@ export function pipelines_$id() {
   );
 }
 
-namespace Logic {
+namespace Internal {
   // TODO: translation file?
   const categoryLabels: Record<Step.Category, string> = {
     [Step.Category.producer]: "Artifact producers",
@@ -291,19 +292,23 @@ namespace Logic {
     return {
       ...pipeline,
       blocks: pipeline.steps.map<Block>((step) => {
-        const handles: Record<Step.Category, Block.Handle[]> = {
-          [Step.Category.producer]: [Block.Handle.output],
-          [Step.Category.transformer]: [Block.Handle.output, Block.Handle.input],
-          [Step.Category.consumer]: [Block.Handle.input],
-        };
         return {
           id: step.id,
           incomingId: step.previousStepId,
           label: typeLabels[step.type],
-          handles: handles[Step.getCategory(step)],
+          handles: convertTypeToHandles(step.type),
+          selected: false,
         };
       }),
     };
+  }
+  export function convertTypeToHandles(type: Step.Type): Block.Handle[] {
+    const handles: Record<Step.Category, Block.Handle[]> = {
+      [Step.Category.producer]: [Block.Handle.output],
+      [Step.Category.transformer]: [Block.Handle.output, Block.Handle.input],
+      [Step.Category.consumer]: [Block.Handle.input],
+    };
+    return handles[Step.getCategory({ type })];
   }
 
   type ButtonGroup = {
