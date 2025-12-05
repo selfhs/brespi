@@ -1,6 +1,12 @@
 import { dia } from "@joint/core";
+import { CanvasEvent } from "../CanvasEvent";
 
-export function setupLinkInteractions(graph: dia.Graph, notifyBlocksChange: () => void) {
+type Options = {
+  graph: dia.Graph;
+  notifyBlocksChange: (event: CanvasEvent) => void;
+};
+
+export function setupLinkInteractions({ graph, notifyBlocksChange }: Options) {
   graph.on("add", (cell) => {
     if (cell.isLink()) {
       // Listen for when this link gets a target
@@ -9,7 +15,7 @@ export function setupLinkInteractions(graph: dia.Graph, notifyBlocksChange: () =
         // Only notify if target is an actual element (has id), not just mouse coordinates
         if (target && target.id) {
           console.log("Link connected to target, notifying parent");
-          notifyBlocksChange();
+          notifyBlocksChange("relation");
         }
       });
     }
@@ -19,7 +25,7 @@ export function setupLinkInteractions(graph: dia.Graph, notifyBlocksChange: () =
   graph.on("remove", (cell) => {
     if (cell.isLink()) {
       console.log("Link removed, notifying parent");
-      notifyBlocksChange();
+      notifyBlocksChange("relation");
     }
   });
 }

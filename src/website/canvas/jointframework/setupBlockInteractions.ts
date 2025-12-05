@@ -6,12 +6,11 @@ type Options = {
   paper: dia.Paper;
   graph: dia.Graph;
   blocksRef: RefObject<Block[]>;
-  notifyBlocksChange: () => void;
   select: (id: string) => void;
   deselect: (id: string) => void;
 };
 
-export function setupBlockInteractions({ graph, paper, notifyBlocksChange, blocksRef, select, deselect }: Options) {
+export function setupBlockInteractions({ graph, paper, blocksRef, select, deselect }: Options) {
   // Handle block clicks (activate/highlight)
   paper.on("element:pointerclick", (elementView, evt) => {
     const clickedElement = elementView.model;
@@ -30,8 +29,6 @@ export function setupBlockInteractions({ graph, paper, notifyBlocksChange, block
         const incomingLinks = graph.getConnectedLinks(clickedElement, { inbound: true });
         if (incomingLinks.length > 0) {
           incomingLinks[0].remove();
-          console.log("Removed incoming link from block:", clickedElement.id);
-          notifyBlocksChange();
           return;
         }
       }
@@ -52,10 +49,5 @@ export function setupBlockInteractions({ graph, paper, notifyBlocksChange, block
       id: elementId,
       type: clickedElement.attr("label/text"),
     });
-  });
-
-  // Notify when block is moved
-  paper.on("element:pointerup", () => {
-    notifyBlocksChange();
   });
 }

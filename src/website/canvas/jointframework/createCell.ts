@@ -76,7 +76,6 @@ export function createCell(block: JointBlock) {
         },
         label: {
           text: block.label,
-          // fill: "#000",
           class: "fill-c-dark",
           fontSize: 14,
           x: "calc(0.5*w)", // Center horizontally

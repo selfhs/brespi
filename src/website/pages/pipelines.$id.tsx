@@ -22,6 +22,7 @@ import "./pipelines.$id.css";
 import { useNavigate } from "react-router";
 import { Temporal } from "@js-temporal/polyfill";
 import { StepForm } from "../forms/StepForm";
+import { CanvasEvent } from "../canvas/CanvasEvent";
 
 type Form = {
   mode: "viewing" | "editing";
@@ -125,7 +126,8 @@ export function pipelines_$id() {
   /**
    * Handle arrow relation updates
    */
-  const handleBlocksRelationChange = (blocks: Block[]) => {
+  const handleBlocksChange = (event: CanvasEvent, blocks: Block[]) => {
+    console.log(event, blocks);
     mainForm.setValue(
       "steps",
       mainForm.getValues("steps").map((step) => {
@@ -204,7 +206,7 @@ export function pipelines_$id() {
                   ref={canvas}
                   mode={mode}
                   initialBlocks={query.data === "new" ? [] : query.data.blocks}
-                  onBlocksRelationChange={handleBlocksRelationChange}
+                  onBlocksChange={handleBlocksChange}
                 />
               </div>
             </div>
