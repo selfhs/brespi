@@ -103,14 +103,13 @@ export function createCell(block: JointBlock) {
                 <div key={key} className="text-sm flex flex-col">
                   <strong className="pb-1">{key}</strong>
                   <code
-                    className={clsx("p-1", {
-                      "bg-c-dim/20 rounded": value !== undefined,
+                    className={clsx("break-all p-1 bg-c-dim/20 rounded", {
                       "text-c-info": typeof value === "number",
                       "text-c-success": typeof value === "boolean" && value,
                       "text-c-error": typeof value === "boolean" && !value,
                     })}
                   >
-                    {typeof value === "boolean" ? (value ? "Yes" : "No") : value === undefined ? "—" : value}
+                    {typeof value === "boolean" ? (value ? "Yes" : "No") : value}
                   </code>
                 </div>
               ))}

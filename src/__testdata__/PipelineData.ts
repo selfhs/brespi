@@ -24,7 +24,7 @@ export namespace PipelineData {
       {
         id: Bun.randomUUIDv7(),
         type: Step.Type.encryption,
-        keyReference: "SYMMETRIC_KEY",
+        keyReference: "SYMMETRIC_KEY_TUCKED_FAR_AWAY",
         implementation: {
           algorithm: "aes256cbc",
         },
