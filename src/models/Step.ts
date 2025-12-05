@@ -2,8 +2,8 @@ import { ZodParser } from "@/helpers/ZodParser";
 import z from "zod/v4";
 
 export type Step =
-  | Step.FsRead
-  | Step.FsWrite
+  | Step.FilesystemRead
+  | Step.FilesystemWrite
   | Step.PostgresBackup
   | Step.Compression
   | Step.Decompression
@@ -14,8 +14,8 @@ export type Step =
 
 export namespace Step {
   export enum Type {
-    fs_read = "fs_read",
-    fs_write = "fs_write",
+    filesystem_read = "filesystem_read",
+    filesystem_write = "filesystem_write",
     postgres_backup = "postgres_backup",
     compression = "compression",
     decompression = "decompression",
@@ -36,14 +36,14 @@ export namespace Step {
     previousStepId?: string;
   };
 
-  export type FsRead = Common & {
-    type: Type.fs_read;
+  export type FilesystemRead = Common & {
+    type: Type.filesystem_read;
     path: string;
     itemizeDirectoryContents: boolean;
   };
 
-  export type FsWrite = Common & {
-    type: Type.fs_write;
+  export type FilesystemWrite = Common & {
+    type: Type.filesystem_write;
     path: string;
   };
 
@@ -102,8 +102,8 @@ export namespace Step {
   };
 
   const categories: Record<Step.Type, Step.Category> = {
-    [Step.Type.fs_read]: Step.Category.producer,
-    [Step.Type.fs_write]: Step.Category.consumer,
+    [Step.Type.filesystem_read]: Step.Category.producer,
+    [Step.Type.filesystem_write]: Step.Category.consumer,
     [Step.Type.postgres_backup]: Step.Category.producer,
     [Step.Type.compression]: Step.Category.transformer,
     [Step.Type.decompression]: Step.Category.transformer,
@@ -123,17 +123,17 @@ export namespace Step {
         z.object({
           id: z.string(),
           previousStepId: z.string().optional(),
-          type: z.literal(Type.fs_read),
+          type: z.literal(Type.filesystem_read),
           path: z.string(),
           itemizeDirectoryContents: z.boolean(),
-        } satisfies SubSchema<Step.FsRead>),
+        } satisfies SubSchema<Step.FilesystemRead>),
 
         z.object({
           id: z.string(),
           previousStepId: z.string().optional(),
-          type: z.literal(Type.fs_write),
+          type: z.literal(Type.filesystem_write),
           path: z.string(),
-        } satisfies SubSchema<Step.FsWrite>),
+        } satisfies SubSchema<Step.FilesystemWrite>),
 
         z.object({
           id: z.string(),

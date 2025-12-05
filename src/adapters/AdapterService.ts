@@ -23,10 +23,10 @@ export class AdapterService {
     s3Adapter: S3Adapter,
   ) {
     this.registry = {
-      [Step.Type.fs_read]: async (_, options) => {
+      [Step.Type.filesystem_read]: async (_, options) => {
         return await fileSystemAdapter.read(options);
       },
-      [Step.Type.fs_write]: async (artifacts, options) => {
+      [Step.Type.filesystem_write]: async (artifacts, options) => {
         await fileSystemAdapter.write(artifacts, options);
         return [];
       },

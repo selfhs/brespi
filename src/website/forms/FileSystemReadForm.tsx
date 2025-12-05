@@ -11,9 +11,9 @@ type Form = {
 };
 type Props = {
   id: string;
-  existing?: Step.FsRead;
+  existing?: Step.FilesystemRead;
   onCancel: () => unknown;
-  onSubmit: (step: Step.FsRead) => unknown;
+  onSubmit: (step: Step.FilesystemRead) => unknown;
   className?: string;
 };
 export function FileSystemReadForm({ id, existing, onCancel, onSubmit, className }: Props) {
@@ -28,7 +28,7 @@ export function FileSystemReadForm({ id, existing, onCancel, onSubmit, className
     onSubmit({
       id,
       previousStepId: existing?.previousStepId,
-      type: Step.Type.fs_read,
+      type: Step.Type.filesystem_read,
       path: form.path,
       itemizeDirectoryContents: form.itemizeDirectoryContents === "true",
     });

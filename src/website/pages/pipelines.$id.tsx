@@ -273,8 +273,8 @@ namespace Logic {
     [Step.Category.consumer]: "Artifact consumers",
   };
   const typeLabels: Record<Step.Type, string> = {
-    [Step.Type.fs_read]: "Filesystem Read",
-    [Step.Type.fs_write]: "Filesystem Write",
+    [Step.Type.filesystem_read]: "Filesystem Read",
+    [Step.Type.filesystem_write]: "Filesystem Write",
     [Step.Type.postgres_backup]: "Postgres Backup",
     [Step.Type.compression]: "Compression",
     [Step.Type.decompression]: "Decompression",
@@ -323,7 +323,7 @@ namespace Logic {
       // Producers
       Step.Type.postgres_backup,
       Step.Type.s3_download,
-      Step.Type.fs_read,
+      Step.Type.filesystem_read,
       // Transformers
       Step.Type.compression,
       Step.Type.decompression,
@@ -331,7 +331,7 @@ namespace Logic {
       Step.Type.decryption,
       // Consumers
       Step.Type.s3_upload,
-      Step.Type.fs_write,
+      Step.Type.filesystem_write,
     ];
 
     Object.values(Step.Type).map((type) => {

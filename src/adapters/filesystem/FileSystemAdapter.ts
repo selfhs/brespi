@@ -9,7 +9,7 @@ export class FileSystemAdapter {
   /**
    * Read file(s) from filesystem and convert to artifacts
    */
-  public async read(options: Step.FsRead): Promise<Artifact[]> {
+  public async read(options: Step.FilesystemRead): Promise<Artifact[]> {
     const item = await stat(options.path);
     if (item.isDirectory() && options.itemizeDirectoryContents) {
       return await this.readDirectoryRecursively(options.path);
@@ -21,7 +21,7 @@ export class FileSystemAdapter {
   /**
    * Write artifacts from pipeline to a directory on filesystem
    */
-  public async write(artifacts: Artifact[], options: Step.FsWrite): Promise<void> {
+  public async write(artifacts: Artifact[], options: Step.FilesystemWrite): Promise<void> {
     // Ensure destination directory exists
     await mkdir(options.path, { recursive: true });
 

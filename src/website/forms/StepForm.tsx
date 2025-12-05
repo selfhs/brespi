@@ -10,7 +10,7 @@ type Props = {
   onSubmit: (step: Step) => unknown;
 };
 export function StepForm({ type, existing, ...props }: Props) {
-  if (type === Step.Type.fs_read) {
-    return <FileSystemReadForm existing={existing as Step.FsRead} {...props} />;
+  if (type === Step.Type.filesystem_read) {
+    return <FileSystemReadForm existing={existing as Step.FilesystemRead} {...props} />;
   }
 }
