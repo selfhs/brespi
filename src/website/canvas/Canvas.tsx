@@ -66,10 +66,6 @@ export function Canvas({ ref, mode, initialBlocks, onBlocksRelationChange, class
     if (source.id === target.id) {
       return false;
     }
-    // Validate port types: source must have output, target must have input
-    if (!source.handles.includes(Block.Handle.output) || !target.handles.includes(Block.Handle.input)) {
-      return false;
-    }
     // Only allow links from input to output
     if (source.proposedHandle !== Block.Handle.output || target.proposedHandle !== Block.Handle.input) {
       return false;
@@ -103,16 +99,15 @@ export function Canvas({ ref, mode, initialBlocks, onBlocksRelationChange, class
     graphRef.current = graph;
     paperRef.current = paper;
 
-    const notifyBlocksChangeWithGraph = () => notifyBlocksChange(graph);
     setupBlockInteractions({
       graph,
       paper,
       blocksRef,
-      notifyBlocksChange: notifyBlocksChangeWithGraph,
+      notifyBlocksChange,
       activeBlockId,
       setActiveBlockId,
     });
-    setupLinkInteractions(graph, notifyBlocksChangeWithGraph);
+    setupLinkInteractions(graph, notifyBlocksChange);
     const cleanupPanning = setupPanning(paper);
 
     // Setup ResizeObserver to make canvas responsive

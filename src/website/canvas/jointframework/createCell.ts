@@ -10,53 +10,54 @@ export function createCell(block: JointBlock) {
   const hasInput = block.handles.includes(Block.Handle.input);
   const hasOutput = block.handles.includes(Block.Handle.output);
 
-  const sideConnector = {
+  const ioConnector = {
     width: 16,
     height: 16,
     borderRadius: 4,
     offset: 6,
   };
-  if (hasInput) {
-    items.push({ id: Block.Handle.input, group: Block.Handle.input });
-    groups.input = {
-      position: "left",
-      markup: [{ tagName: "rect", selector: "rect" }],
-      attrs: {
-        rect: {
-          width: sideConnector.width,
-          height: sideConnector.height,
-          x: -sideConnector.width - sideConnector.offset, // Position fully outside to the left
-          y: -(sideConnector.height / 2), // Center vertically
-          rx: sideConnector.borderRadius,
-          ry: sideConnector.borderRadius,
-          class: "fill-c-artifact-fill stroke-c-artifact-stroke",
-          strokeWidth: 3,
-          magnet: "passive",
-        },
-      },
-    };
-  }
-  if (hasOutput) {
-    items.push({ group: Block.Handle.output, id: Block.Handle.output });
-    groups.output = {
-      position: "right",
-      markup: [{ tagName: "rect", selector: "rect" }],
-      attrs: {
-        rect: {
-          width: sideConnector.width,
-          height: sideConnector.height,
-          x: sideConnector.offset, // Position fully outside to the right
-          y: -(sideConnector.height / 2), // Center vertically
-          rx: sideConnector.borderRadius,
-          ry: sideConnector.borderRadius,
-          class: "fill-c-artifact-fill stroke-c-artifact-stroke",
-          strokeWidth: 3,
-          magnet: true,
-        },
-      },
-    };
-  }
 
+  // Input side
+  items.push({ id: Block.Handle.input, group: Block.Handle.input });
+  groups.input = {
+    position: "left",
+    markup: [{ tagName: "rect", selector: "rect" }],
+    attrs: {
+      rect: {
+        width: ioConnector.width,
+        height: ioConnector.height,
+        x: -ioConnector.width - ioConnector.offset, // Position fully outside to the left
+        y: -(ioConnector.height / 2), // Center vertically
+        rx: ioConnector.borderRadius,
+        ry: ioConnector.borderRadius,
+        class: hasInput ? "fill-c-artifact-fill stroke-c-artifact-stroke" : "fill-gray-300 stroke-c-dim",
+        strokeWidth: 3,
+        magnet: "passive",
+      },
+    },
+  };
+
+  // Output side
+  items.push({ group: Block.Handle.output, id: Block.Handle.output });
+  groups.output = {
+    position: "right",
+    markup: [{ tagName: "rect", selector: "rect" }],
+    attrs: {
+      rect: {
+        width: ioConnector.width,
+        height: ioConnector.height,
+        x: ioConnector.offset, // Position fully outside to the right
+        y: -(ioConnector.height / 2), // Center vertically
+        rx: ioConnector.borderRadius,
+        ry: ioConnector.borderRadius,
+        class: hasOutput ? "fill-c-artifact-fill stroke-c-artifact-stroke" : "fill-gray-300 stroke-c-dim",
+        strokeWidth: 3,
+        magnet: true,
+      },
+    },
+  };
+
+  // Main body
   return new shapes.standard.Rectangle({
     id: block.id,
     position: block.coordinates,
