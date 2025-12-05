@@ -24,6 +24,7 @@ import { Temporal } from "@js-temporal/polyfill";
 import { StepForm } from "../forms/StepForm";
 import { CanvasEvent } from "../canvas/CanvasEvent";
 import { Interactivity } from "../canvas/Interactivity";
+import { ObjectFlatten } from "@/types/ObjectFlatten";
 
 type Form = {
   interactivity: Interactivity;
@@ -292,6 +293,14 @@ namespace Internal {
     [Step.Type.s3_upload]: "S3 Upload",
     [Step.Type.s3_download]: "S3 Download",
   };
+  type DetailLabels = {
+    [T in Step.Type]: Record<keyof ObjectFlatten<Omit<Extract<Step, { type: T }>, "id" | "type" | "previousStepId">>, string>;
+  };
+  const detailLabels: DetailLabels = {
+    [Step.Type.filesystem_read]: {
+      path: "Path",
+    },
+  };
 
   export type PipelineWithInitialBlocks = PipelineView & {
     initialBlocks: Block[];
@@ -318,7 +327,12 @@ namespace Internal {
       }),
     };
   }
-  export function convertTypeToHandles(type: Step.Type): Block.Handle[] {
+  export function convertToDetails(step: Step): Block["details"] {
+    if (step.type === Step.Type.compression) {
+      const obj = ObjectFlatten.perform(step);
+    }
+  }
+  export function convertTypeToHandles(type: Step.Type): Block["handles"] {
     const handles: Record<Step.Category, Block.Handle[]> = {
       [Step.Category.producer]: [Block.Handle.output],
       [Step.Category.transformer]: [Block.Handle.output, Block.Handle.input],
